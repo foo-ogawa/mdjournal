@@ -1,0 +1,84 @@
+# プロジェクト定義
+# code: プロジェクトコード
+# name: プロジェクト名
+# fullName: プロジェクトフルネーム（オプション）
+# color: カレンダー表示色
+# category: カテゴリID
+# active: アクティブかどうか（デフォルト: true）
+
+projects:
+  # 社内管理
+  - code: P99
+    name: 社内業務
+    fullName: 社内管理・雑務
+    color: "#52c41a"
+    category: internal
+    active: true
+
+  # クライアントA
+  - code: P34
+    name: クライアントA
+    fullName: クライアントA システム開発
+    color: "#1890ff"
+    category: client
+    client: A社
+    active: true
+
+  # クライアントD
+  - code: P37
+    name: クライアントD
+    fullName: クライアントD
+    color: "#fa8c16"
+    category: client
+    client: D社
+    active: true
+
+  # サービスC
+  - code: P08
+    name: サービスC
+    fullName: サービスC
+    color: "#eb2f96"
+    category: client
+    active: true
+
+  # システムB
+  - code: P14
+    name: システムB
+    fullName: システムB
+    color: "#722ed1"
+    category: client
+    active: true
+
+  # プロジェクトE
+  - code: P25
+    name: プロジェクトE
+    fullName: プロジェクトE
+    color: "#13c2c2"
+    category: client
+    active: true
+
+  # 研究プロジェクト
+  - code: "904"
+    name: 研究PJ
+    fullName: 研究プロジェクト
+    color: "#2f54eb"
+    category: research
+    active: true
+
+# カテゴリ定義
+categories:
+  - id: internal
+    name: 社内業務
+    color: "#52c41a"
+
+  - id: client
+    name: クライアント業務
+    color: "#1890ff"
+
+  - id: research
+    name: 研究・開発
+    color: "#722ed1"
+
+  - id: personal
+    name: 個人
+    color: "#8c8c8c"

@@ -1,0 +1,110 @@
+# ルーチン定義
+# 曜日ごとの定期的な予定を定義
+
+routines:
+  weekly:
+    monday:
+      - time: "08:00"
+        project: P99
+        task: タスク確認・整理、日報返信
+      - time: "09:00"
+        project: P99
+        task: 定例会議
+      - time: "09:30"
+        project: P37
+        task: クライアントD デイリー
+      - time: "10:30"
+        project: P99
+        task: 管理部門MTG
+
+    tuesday:
+      - time: "08:00"
+        project: P99
+        task: タスク確認・整理、日報返信
+      - time: "09:30"
+        project: P99
+        task: 経営会議
+      - time: "10:00"
+        project: P34
+        task: クライアントA 基盤相談会
+
+    wednesday:
+      - time: "08:00"
+        project: P99
+        task: タスク確認・整理、日報返信
+      - time: "10:00"
+        project: P14
+        task: システムB 週次MTG
+      - time: "14:00"
+        project: P34
+        task: クライアントA スプリントレビュー
+
+    thursday:
+      - time: "08:00"
+        project: P99
+        task: タスク確認・整理、日報返信
+      - time: "09:30"
+        project: P37
+        task: クライアントD デイリー
+      - time: "15:00"
+        project: P99
+        task: 全社会
+
+    friday:
+      - time: "08:00"
+        project: P99
+        task: タスク確認・整理、日報返信
+      - time: "09:30"
+        project: P37
+        task: クライアントD デイリー
+      - time: "17:00"
+        project: P99
+        task: 週報作成
+
+  # 随時開催（特定の曜日に固定されないミーティング）
+  adhoc:
+    - time: "14:00"
+      project: P14
+      task: システムB 開発MTG
+
+  # 月次ルーチン
+  monthly:
+    # 月末タスク
+    end_of_month:
+      - project: P99
+        task: 面談スケジュール調整
+      - project: P14
+        task: システムB 保守工数集計
+
+    # 月初タスク
+    start_of_month:
+      - project: P99
+        task: 経費精算申請
+      - project: P99
+        task: 個人立替経費精算
+
+  # 四半期・半年・特定月ルーチン
+  quarterly:
+    # 半年ごと（6月、12月）
+    - months: [6, 12]
+      tasks:
+        - project: P99
+          task: 契約更新確認（半年ごと）
+
+    # 四半期ごと（3月、6月、9月、12月）
+    - months: [3, 6, 9, 12]
+      tasks:
+        - project: P99
+          task: 四半期レビュー
+
+  # 年間ルーチン（特定日）
+  yearly:
+    - month: 11
+      day: 10
+      project: P99
+      task: クラウドサービス契約更新
+
+    - month: 8
+      day: 1
+      project: P99
+      task: 保守契約更新確認

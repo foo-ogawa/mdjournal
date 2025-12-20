@@ -1,0 +1,25 @@
+# mdJournal ルート設定ファイル
+# 
+# 使用方法:
+#   npx mdjournal ./mdjournal.config.yaml
+#   npx mdjournal -c ./mdjournal.config.yaml
+
+# 各設定ファイルへのパス（このファイルからの相対パス）
+projects: ./config/projects.yaml
+routines: ./config/routines.yaml
+
+# 日報ディレクトリ
+reports: ./reports
+
+# タイムライン設定
+timeline:
+  hourHeight: 60          # 1時間あたりの高さ（ピクセル）
+  maxHours: 36            # 最大表示時間（8:00から最大36時間 = 翌日20:00まで）
+  defaultStartHour: 8     # デフォルト開始時刻（スロットが空の場合の表示開始時間）
+  defaultEndHour: 20      # デフォルト終了時刻（スロットが空の場合の表示終了時間）
+  snapMinutes: 15         # ドラッグ時のスナップ単位（分）
+
+# サーバー設定（オプション）
+server:
+  port: 3001
+  cors: http://localhost:5173

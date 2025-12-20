@@ -1,0 +1,83 @@
+/**
+ * 設定API ルーター
+ * 
+ * GET /api/config - 設定取得
+ * PUT /api/config - 設定更新
+ */
+
+import { Router, Request, Response } from 'express';
+import { readConfig, writeConfig } from '../utils/fileManager.js';
+import type { Config, ApiError } from '../types/index.js';
+
+const router = Router();
+
+/**
+ * GET /api/config - 設定取得
+ */
+router.get('/', async (_req: Request, res: Response) => {
+  try {
+    const config = await readConfig();
+    res.json(config);
+  } catch (error) {
+    console.error('Error reading config:', error);
+    const apiError: ApiError = {
+      code: 'INTERNAL_ERROR',
+      message: '設定の読み込み中にエラーが発生しました',
+    };
+    res.status(500).json(apiError);
+  }
+});
+
+/**
+ * PUT /api/config - 設定更新
+ */
+router.put('/', async (req: Request, res: Response) => {
+  const config = req.body as Partial<Config>;
+
+  // バリデーション
+  if (config.projects) {
+    for (const project of config.projects) {
+      if (!project.code || !project.name || !project.color || !project.category) {
+        const error: ApiError = {
+          code: 'INVALID_PROJECT',
+          message: 'プロジェクトにはcode, name, color, categoryが必須です',
+        };
+        return res.status(400).json(error);
+      }
+      
+      // カラーフォーマットチェック
+      if (!/^#[0-9A-Fa-f]{6}$/.test(project.color)) {
+        const error: ApiError = {
+          code: 'INVALID_COLOR',
+          message: 'colorは#RRGGBB形式で指定してください',
+        };
+        return res.status(400).json(error);
+      }
+      
+      // カテゴリチェック
+      if (!['internal', 'client', 'personal'].includes(project.category)) {
+        const error: ApiError = {
+          code: 'INVALID_CATEGORY',
+          message: 'categoryはinternal, client, personalのいずれかを指定してください',
+        };
+        return res.status(400).json(error);
+      }
+    }
+  }
+
+  try {
+    await writeConfig(config);
+    const updatedConfig = await readConfig();
+    res.json(updatedConfig);
+  } catch (error) {
+    console.error('Error updating config:', error);
+    const apiError: ApiError = {
+      code: 'INTERNAL_ERROR',
+      message: '設定の更新中にエラーが発生しました',
+    };
+    res.status(500).json(apiError);
+  }
+});
+
+export default router;
+
