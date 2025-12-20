@@ -14,6 +14,7 @@ import reportsRouter from './routes/reports.js';
 import calendarRouter from './routes/calendar.js';
 import configRouter from './routes/config.js';
 import gcalRouter from './routes/gcal.js';
+import gitRouter from './routes/git.js';
 import { initConfigPaths, getConfigPaths } from './utils/fileManager.js';
 import type { ApiError } from './types/index.js';
 
@@ -61,6 +62,7 @@ app.use('/api/reports', reportsRouter);
 app.use('/api/calendar', calendarRouter);
 app.use('/api/config', configRouter);
 app.use('/api/gcal', gcalRouter);
+app.use('/api/git', gitRouter);
 
 // 404ハンドラー (API)
 app.use('/api/*', (_req: Request, res: Response) => {

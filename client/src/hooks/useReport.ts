@@ -439,7 +439,7 @@ function parseReportFromMarkdown(date: string, content: string): DailyReport {
     // TODO のパース（新形式: - [x] @2025-12-18 !!! タスク名）
     if (currentSection === 'todo' && line.startsWith('-')) {
       // 新形式: - [x] @YYYY-MM-DD !!! タスク名
-      const newFormatMatch = line.match(/^-\s+\[([xX\s\*\->])\]\s+(?:@(\d{4}-\d{2}-\d{2})\s+)?(?:(!!!|!!|!)\s+)?(.+)$/);
+      const newFormatMatch = line.match(/^-\s+\[([xX\s*\->])\]\s+(?:@(\d{4}-\d{2}-\d{2})\s+)?(?:(!!!|!!|!)\s+)?(.+)$/);
       if (newFormatMatch) {
         const priorityMap: Record<string, TodoItem['priority']> = {
           '!!!': 'high',
@@ -459,7 +459,7 @@ function parseReportFromMarkdown(date: string, content: string): DailyReport {
       }
       
       // 旧形式: - [x] [プロジェクト] タスク名（期限）
-      const oldFormatMatch = line.match(/^-\s+\[([xX\s\*\->])\]\s+(?:\[([^\]]+)\]\s+)?(.+?)(?:（([^）]+)）)?$/);
+      const oldFormatMatch = line.match(/^-\s+\[([xX\s*\->])\]\s+(?:\[([^\]]+)\]\s+)?(.+?)(?:（([^）]+)）)?$/);
       if (oldFormatMatch) {
         const todo: TodoItem = {
           id: `t${i}`,

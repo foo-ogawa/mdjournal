@@ -115,13 +115,13 @@ export function parseTodoMarkdown(markdown: string): { todos: TodoItem[]; notes:
     }
     
     // インデントされた行は詳細説明として扱う
-    if (currentTodo && line.match(/^  /)) {
+    if (currentTodo && line.match(/^ {2}/)) {
       descriptionLines.push(line.substring(2)); // 先頭の2スペースを除去
       continue;
     }
     
     // TODO項目検出
-    const todoMatch = line.match(/^-\s+\[([xX\s\*\-])\]\s+(.+)$/);
+    const todoMatch = line.match(/^-\s+\[([xX\s*-])\]\s+(.+)$/);
     if (todoMatch) {
       savePendingTodo();
       

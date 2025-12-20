@@ -61,16 +61,17 @@ export function getRelativePathFromGitRoot(absolutePath: string): string {
 
 /**
  * Git commit
+ * すべての未コミットファイルをステージングしてコミットする
  */
 export async function gitCommit(
-  filePath: string,
+  _filePath: string,
   message?: string
 ): Promise<{ success: boolean; commitHash?: string; error?: string }> {
   const git = getGit();
   
   try {
-    // ファイルをステージング
-    await git.add(filePath);
+    // すべての変更をステージング（保存したファイルも他の未コミットファイルも）
+    await git.add('.');
     
     // コミット
     const commitMessage = message || `日報更新: ${new Date().toISOString().split('T')[0]}`;
@@ -154,6 +155,132 @@ export async function isGitRepository(): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * 未pushのコミット一覧を取得
+ */
+export async function getUnpushedCommits(): Promise<{
+  count: number;
+  commits: {
+    hash: string;
+    message: string;
+    date: string;
+    files: string[];
+  }[];
+}> {
+  const git = getGit();
+  
+  try {
+    // リモートトラッキングブランチの情報を取得
+    const status = await git.status();
+    const currentBranch = status.current || 'main';
+    
+    // リモートが設定されているか確認
+    const remotes = await git.getRemotes(true);
+    if (remotes.length === 0) {
+      return { count: 0, commits: [] };
+    }
+    
+    // origin/main または origin/currentBranch との差分を取得
+    const remoteBranch = `origin/${currentBranch}`;
+    
+    try {
+      // リモートブランチが存在するか確認
+      await git.raw(['rev-parse', '--verify', remoteBranch]);
+    } catch {
+      // リモートブランチが存在しない場合は、すべてのローカルコミットを未pushとみなす
+      return { count: 0, commits: [] };
+    }
+    
+    // 未pushのコミット一覧を取得
+    const log = await git.log({ from: remoteBranch, to: 'HEAD' });
+    
+    const commits = await Promise.all(
+      log.all.map(async (commit) => {
+        // 各コミットで変更されたファイルを取得
+        let files: string[] = [];
+        try {
+          const diffResult = await git.raw(['diff-tree', '--no-commit-id', '--name-only', '-r', commit.hash]);
+          files = diffResult.trim().split('\n').filter(f => f);
+        } catch {
+          // ファイル取得に失敗しても続行
+        }
+        
+        return {
+          hash: commit.hash.substring(0, 7),
+          message: commit.message,
+          date: commit.date,
+          files,
+        };
+      })
+    );
+    
+    return {
+      count: commits.length,
+      commits,
+    };
+  } catch (error) {
+    console.error('Error getting unpushed commits:', error);
+    return { count: 0, commits: [] };
+  }
+}
+
+/**
+ * 拡張Git状態を取得（未コミット + 未push情報付き）
+ */
+export async function getExtendedGitStatus(): Promise<{
+  branch: string;
+  uncommitted: {
+    count: number;
+    files: { path: string; status: string }[];
+  };
+  unpushed: {
+    count: number;
+    commits: {
+      hash: string;
+      message: string;
+      date: string;
+      files: string[];
+    }[];
+  };
+  lastCommit?: {
+    hash: string;
+    message: string;
+    date: string;
+  };
+}> {
+  const git = getGit();
+  
+  try {
+    const status = await git.status();
+    const log = await git.log({ maxCount: 1 });
+    const unpushed = await getUnpushedCommits();
+    
+    return {
+      branch: status.current || 'unknown',
+      uncommitted: {
+        count: status.files.length,
+        files: status.files.map(f => ({
+          path: f.path,
+          status: f.working_dir || f.index || 'M',
+        })),
+      },
+      unpushed,
+      lastCommit: log.latest ? {
+        hash: log.latest.hash.substring(0, 7),
+        message: log.latest.message,
+        date: log.latest.date,
+      } : undefined,
+    };
+  } catch (error) {
+    console.error('Error getting extended git status:', error);
+    return {
+      branch: 'unknown',
+      uncommitted: { count: 0, files: [] },
+      unpushed: { count: 0, commits: [] },
+    };
   }
 }
 

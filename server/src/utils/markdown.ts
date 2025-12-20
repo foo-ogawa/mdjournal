@@ -154,7 +154,7 @@ export function parseMarkdown(date: string, content: string): DailyReport {
  */
 function parseTodoLine(line: string, id: string, defaultProject: string): TodoItem | null {
   // - [ステータス] @期日 !!! タスク名 or - [ステータス] @期日 !!! [プロジェクト] タスク名
-  const match = line.match(/^-\s+\[([xX\s\*\->])\]\s*(.*)$/);
+  const match = line.match(/^-\s+\[([xX\s*\->])\]\s*(.*)$/);
   if (!match) return null;
 
   const status = parseStatusMark(match[1]);

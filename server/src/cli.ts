@@ -467,7 +467,7 @@ async function runStats(args: StatsArgs): Promise<void> {
       const fileContent = await fs.readFile(file, 'utf-8');
       
       // frontmatterと本文を分離
-      const { content, data: existingFrontmatter } = matter(fileContent);
+      const { content } = matter(fileContent);
       
       // バリデーションオプションが有効な場合、事前チェック
       if (args.validate) {

@@ -11,6 +11,7 @@ import type {
   CalendarData,
   Config,
   GoogleCalendarEvent,
+  ExtendedGitStatus,
 } from '../types';
 
 // API Base URL
@@ -132,6 +133,19 @@ export const configApi = {
       method: 'PUT',
       body: JSON.stringify(config),
     });
+  },
+
+};
+
+/**
+ * Git連携API
+ */
+export const gitApi = {
+  /**
+   * Git状態取得（拡張）
+   */
+  async getStatus(): Promise<ExtendedGitStatus> {
+    return fetchApi<ExtendedGitStatus>('/git/status');
   },
 };
 

@@ -185,7 +185,6 @@ export const TimelineView = ({ selectedDate, selectedProjects = [] }: TimelineVi
         console.log(`[Timeline] Scrolled to ${scrollToMinutes}min (${Math.floor(scrollToMinutes/60)}:${String(scrollToMinutes%60).padStart(2,'0')}), scrollTop=${targetScrollTop}px, firstItem=${firstItemTime}min, startHour=${startHour}`);
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, isEditing, startHour, hourHeight, planItems, resultItems]);
 
   // アイテム削除

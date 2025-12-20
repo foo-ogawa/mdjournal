@@ -49,11 +49,9 @@ export function validateReport(
   const skipRules = new Set(options.skipRules || []);
   
   let currentSection = '';
-  let currentTodoProject = '';
   let hasHeader = false;
   let hasPlanSection = false;
   let hasResultSection = false;
-  let hasTodoSection = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -100,8 +98,6 @@ export function validateReport(
     }
     if (line.match(/^##\s+\[TODO\]/i)) {
       currentSection = 'todo';
-      hasTodoSection = true;
-      currentTodoProject = '';
       continue;
     }
     if (line.match(/^##\s+\[NOTE\]/i)) {
@@ -166,10 +162,6 @@ export function validateReport(
     if (currentSection === 'todo') {
       // プロジェクトグループヘッダーの検出
       if (line.match(/^###\s+/)) {
-        const projectMatch = line.match(/^###\s+(\S+)/);
-        if (projectMatch) {
-          currentTodoProject = projectMatch[1];
-        }
         continue;
       }
 
@@ -187,7 +179,7 @@ export function validateReport(
         }
 
         // TODO形式の解析
-        const todoMatch = line.match(/^[-*]\s+\[([xX\s\*\-])\]\s*(.*)$/);
+        const todoMatch = line.match(/^[-*]\s+\[([xX\s*-])\]\s*(.*)$/);
         if (todoMatch) {
           const todoContent = todoMatch[2];
 
@@ -237,7 +229,7 @@ export function validateReport(
       // プロジェクト名だけの行（ネストTODOの親）の検出
       if (!skipRules.has('project-only-line')) {
         const projectOnlyMatch = line.match(/^-\s+\[([^\]]+)\]\s+(\S+)\s*$/);
-        if (projectOnlyMatch && !projectOnlyMatch[1].match(/[xX\s\*\-]/)) {
+        if (projectOnlyMatch && !projectOnlyMatch[1].match(/[xX\s*-]/)) {
           // これはステータスマークではなくプロジェクトコードの可能性が高い
           issues.push({
             line: lineNum,

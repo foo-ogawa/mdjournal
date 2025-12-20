@@ -93,7 +93,7 @@ export function parseReportMarkdown(markdown: string): Partial<DailyReport> {
         }
       }
     } else if (currentSection === 'todo') {
-      const todoMatch = line.match(/^-\s+\[([xX\s\*\-])\]\s+(.+)$/);
+      const todoMatch = line.match(/^-\s+\[([xX\s*-])\]\s+(.+)$/);
       if (todoMatch) {
         const statusMark = todoMatch[1];
         let taskText = todoMatch[2];

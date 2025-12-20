@@ -99,7 +99,7 @@ function formatForSlack(date: string, content: string): string {
   const contentWithoutFrontmatter = content.replace(/^---[\s\S]*?---\n/, '');
   
   // Markdown見出しをSlack形式に変換
-  let formatted = contentWithoutFrontmatter
+  const formatted = contentWithoutFrontmatter
     // H1 -> 太字
     .replace(/^# (.+)$/gm, '*$1*')
     // H2 -> 太字

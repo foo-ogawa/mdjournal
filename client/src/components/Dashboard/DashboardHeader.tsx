@@ -1,4 +1,4 @@
-import { Layout, DatePicker, Button, Space, Tooltip, Typography, message, Modal, Steps, Input, Tag, Checkbox } from 'antd';
+import { Layout, DatePicker, Button, Space, Tooltip, Typography, message, Modal, Steps, Input, Tag, Checkbox, Divider, Collapse, Spin } from 'antd';
 import {
   GithubOutlined,
   CalendarOutlined,
@@ -9,10 +9,14 @@ import {
   CloseOutlined,
   ImportOutlined,
   FileOutlined,
+  ExclamationCircleOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { useDashboard } from './DashboardContext';
+import { gitApi } from '../../api/client';
+import type { ExtendedGitStatus } from '../../types';
 
 const { TextArea } = Input;
 
@@ -57,6 +61,10 @@ export const DashboardHeader = ({
   // 保存対象の日付チェック状態
   const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set());
   
+  // Git状態
+  const [gitStatus, setGitStatus] = useState<ExtendedGitStatus | null>(null);
+  const [gitStatusLoading, setGitStatusLoading] = useState(false);
+  
   // saveStepの変更をlocalStorageに保存
   useEffect(() => {
     localStorage.setItem(SAVE_STEP_KEY, String(saveStep));
@@ -80,12 +88,36 @@ export const DashboardHeader = ({
     return Array.from(dates).sort((a, b) => b.localeCompare(a));
   }, [unsavedReports.unsavedDates, selectedDate, report.isDirty]);
   
-  // モーダルを開いたときに全てチェック
+  // モーダルを開いたときに全てチェック & Git状態取得
   useEffect(() => {
     if (commitModalOpen) {
       setCheckedDates(new Set(allUnsavedDates));
+      
+      // Git状態を取得
+      setGitStatusLoading(true);
+      gitApi.getStatus()
+        .then(status => setGitStatus(status))
+        .catch(err => console.error('Git状態の取得に失敗:', err))
+        .finally(() => setGitStatusLoading(false));
     }
   }, [commitModalOpen, allUnsavedDates]);
+  
+  // 実行ボタンを有効にする条件
+  // - 未保存の変更がある（checkedDates > 0）
+  // - または、Commit以上を選択していて未コミットファイルがある
+  // - または、Push以上を選択していて未pushコミットがある
+  const canExecute = useMemo(() => {
+    // 未保存の変更をチェックしている場合は実行可能
+    if (checkedDates.size > 0) return true;
+    
+    // Commit以上で未コミットファイルがある場合
+    if (saveStep >= 1 && gitStatus?.uncommitted && gitStatus.uncommitted.count > 0) return true;
+    
+    // Push以上で未pushコミットがある場合
+    if (saveStep >= 2 && gitStatus?.unpushed && gitStatus.unpushed.count > 0) return true;
+    
+    return false;
+  }, [checkedDates.size, saveStep, gitStatus]);
 
   const handleGoToToday = useCallback(() => {
     onDateChange(dayjs());
@@ -105,8 +137,8 @@ export const DashboardHeader = ({
   }, []);
 
   const handleCommitPushExecute = useCallback(async () => {
-    if (checkedDates.size === 0) {
-      message.warning('保存する日付を選択してください');
+    if (!canExecute) {
+      message.warning('実行対象がありません');
       return;
     }
     
@@ -128,7 +160,13 @@ export const DashboardHeader = ({
       
       // 複数の日付を保存
       const dates = Array.from(checkedDates);
-      await saveMultipleReports(dates, options);
+      if (dates.length > 0) {
+        await saveMultipleReports(dates, options);
+      } else if (doCommit || doPush) {
+        // 未保存がないが、commit/pushが必要な場合
+        // 現在表示中の日報を保存（これで未コミットファイルも一緒にcommitされる）
+        await saveMultipleReports([selectedDate.format('YYYY-MM-DD')], options);
+      }
       
       setCommitModalOpen(false);
     } catch {
@@ -136,7 +174,7 @@ export const DashboardHeader = ({
     } finally {
       setExecuting(false);
     }
-  }, [saveStep, checkedDates, saveMultipleReports]);
+  }, [saveStep, checkedDates, saveMultipleReports, canExecute, selectedDate]);
 
   // チェックボックスの切り替え
   const handleDateCheck = useCallback((date: string, checked: boolean) => {
@@ -306,7 +344,7 @@ export const DashboardHeader = ({
         onOk={handleCommitPushExecute}
         okText="実行"
         cancelText="キャンセル"
-        okButtonProps={{ loading: executing, disabled: checkedDates.size === 0 }}
+        okButtonProps={{ loading: executing, disabled: !canExecute }}
         width={900}
       >
         <div style={{ marginBottom: 24 }}>
@@ -355,7 +393,7 @@ export const DashboardHeader = ({
             </Checkbox>
           </div>
           
-          <div style={{ maxHeight: 500, overflow: 'auto', border: '1px solid #f0f0f0', borderRadius: 6 }}>
+          <div style={{ maxHeight: 300, overflow: 'auto', border: '1px solid #f0f0f0', borderRadius: 6 }}>
             {allUnsavedDates.map((date, index) => (
               <div 
                 key={date}
@@ -379,19 +417,123 @@ export const DashboardHeader = ({
                   <TextArea
                     value={getMarkdownPreview(date)}
                     readOnly
-                    autoSize={{ minRows: 10, maxRows: 20 }}
+                    autoSize={{ minRows: 6, maxRows: 12 }}
                     style={{ fontFamily: 'monospace', fontSize: 11, background: '#fafafa', marginTop: 4 }}
                   />
                 )}
               </div>
             ))}
             {allUnsavedDates.length === 0 && (
-              <div style={{ padding: 24, textAlign: 'center', color: '#999' }}>
-                未保存の変更はありません
+              <div style={{ padding: 12, background: '#f6ffed', borderRadius: 6, textAlign: 'center' }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>未保存の変更はありません</Text>
               </div>
             )}
           </div>
         </div>
+        
+        {/* saveStep >= 1 のとき: 未コミットファイルを表示 */}
+        {saveStep >= 1 && (
+          <>
+            <Divider style={{ margin: '16px 0 12px' }} />
+            <div>
+              <Text strong style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <ExclamationCircleOutlined style={{ color: '#faad14' }} />
+                保存済み・未コミットのファイル
+              </Text>
+              {gitStatusLoading ? (
+                <div style={{ padding: 16, textAlign: 'center' }}><Spin size="small" /></div>
+              ) : gitStatus?.uncommitted && gitStatus.uncommitted.count > 0 ? (
+                <Collapse 
+                  size="small"
+                  items={[{
+                    key: 'uncommitted',
+                    label: <Text type="secondary">{gitStatus.uncommitted.count}件の未コミットファイル</Text>,
+                    children: (
+                      <div style={{ maxHeight: 150, overflow: 'auto' }}>
+                        {gitStatus.uncommitted.files.map((file, idx) => (
+                          <div key={idx} style={{ padding: '4px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <FileTextOutlined style={{ color: '#1890ff' }} />
+                            <Text code style={{ fontSize: 11 }}>{file.path}</Text>
+                            <Tag color={file.status === 'D' ? 'red' : file.status === 'A' || file.status === '?' ? 'green' : 'blue'} style={{ fontSize: 10 }}>
+                              {file.status === 'D' ? '削除' : file.status === 'A' ? '追加' : file.status === '?' ? '新規' : '変更'}
+                            </Tag>
+                          </div>
+                        ))}
+                      </div>
+                    ),
+                  }]}
+                  defaultActiveKey={['uncommitted']}
+                />
+              ) : (
+                <div style={{ padding: 12, background: '#f6ffed', borderRadius: 6, textAlign: 'center' }}>
+                  <Text type="secondary" style={{ fontSize: 12 }}>未コミットのファイルはありません</Text>
+                </div>
+              )}
+              <Text type="secondary" style={{ fontSize: 11, marginTop: 8, display: 'block' }}>
+                ※ Commitを選択すると、上記ファイルと未保存の変更が一緒にコミットされます
+              </Text>
+            </div>
+          </>
+        )}
+        
+        {/* saveStep >= 2 のとき: 未pushのコミットを表示 */}
+        {saveStep >= 2 && (
+          <>
+            <Divider style={{ margin: '16px 0 12px' }} />
+            <div>
+              <Text strong style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <CloudSyncOutlined style={{ color: '#1890ff' }} />
+                未プッシュのコミット
+              </Text>
+              {gitStatusLoading ? (
+                <div style={{ padding: 16, textAlign: 'center' }}><Spin size="small" /></div>
+              ) : gitStatus?.unpushed && gitStatus.unpushed.count > 0 ? (
+                <Collapse 
+                  size="small"
+                  items={[{
+                    key: 'unpushed',
+                    label: <Text type="secondary">{gitStatus.unpushed.count}件の未プッシュコミット</Text>,
+                    children: (
+                      <div style={{ maxHeight: 200, overflow: 'auto' }}>
+                        {gitStatus.unpushed.commits.map((commit, idx) => (
+                          <div key={idx} style={{ padding: '8px 0', borderBottom: idx < gitStatus.unpushed.commits.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                              <Tag color="purple" style={{ fontSize: 10, fontFamily: 'monospace' }}>{commit.hash}</Tag>
+                              <Text style={{ fontSize: 12 }}>{commit.message}</Text>
+                            </div>
+                            {commit.files.length > 0 && (
+                              <div style={{ paddingLeft: 16 }}>
+                                {commit.files.slice(0, 5).map((file, fileIdx) => (
+                                  <div key={fileIdx} style={{ fontSize: 11, color: '#666' }}>
+                                    <FileTextOutlined style={{ marginRight: 4 }} />
+                                    {file}
+                                  </div>
+                                ))}
+                                {commit.files.length > 5 && (
+                                  <Text type="secondary" style={{ fontSize: 11 }}>
+                                    ... 他 {commit.files.length - 5} ファイル
+                                  </Text>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ),
+                  }]}
+                  defaultActiveKey={['unpushed']}
+                />
+              ) : (
+                <div style={{ padding: 12, background: '#f6ffed', borderRadius: 6, textAlign: 'center' }}>
+                  <Text type="secondary" style={{ fontSize: 12 }}>未プッシュのコミットはありません</Text>
+                </div>
+              )}
+              <Text type="secondary" style={{ fontSize: 11, marginTop: 8, display: 'block' }}>
+                ※ Pushを選択すると、上記コミットと新しい変更がリモートにプッシュされます
+              </Text>
+            </div>
+          </>
+        )}
       </Modal>
     </Header>
   );

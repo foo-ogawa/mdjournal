@@ -248,6 +248,29 @@ export interface GitStatus {
   lastPush?: string;
 }
 
+// 拡張Git状態（未コミット・未push情報付き）
+export interface ExtendedGitStatus {
+  branch: string;
+  uncommitted: {
+    count: number;
+    files: { path: string; status: string }[];
+  };
+  unpushed: {
+    count: number;
+    commits: {
+      hash: string;
+      message: string;
+      date: string;
+      files: string[];
+    }[];
+  };
+  lastCommit?: {
+    hash: string;
+    message: string;
+    date: string;
+  };
+}
+
 // ===========================================
 // 連携状態
 // ===========================================
