@@ -130,6 +130,20 @@ export const TimelineItem = ({
           </Dropdown>
         </div>
       </div>
+      {item.description && (
+        <Text 
+          style={{ 
+            fontSize: 10, 
+            color: '#888', 
+            display: 'block',
+            marginTop: 2,
+            whiteSpace: 'pre-wrap',
+            lineHeight: 1.3,
+          }}
+        >
+          {item.description}
+        </Text>
+      )}
     </div>
   );
 };

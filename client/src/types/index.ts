@@ -32,6 +32,7 @@ export interface ScheduleItem {
   project: string;
   task: string;
   duration?: number;
+  description?: string;  // 詳細説明（2スペースインデント）
   metadata?: ScheduleItemMetadata;
 }
 

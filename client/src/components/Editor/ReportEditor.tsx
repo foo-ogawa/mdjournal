@@ -269,48 +269,59 @@ export const ReportEditor = ({ selectedDate }: ReportEditorProps) => {
               background: '#fafafa',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-              <DragOutlined style={{ color: '#999', cursor: 'grab' }} />
-              
-              {/* 時刻選択 */}
-              <Select
-                value={item.time}
-                options={timeOptions}
-                size="small"
-                style={{ width: 90 }}
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.value ?? '').toLowerCase().includes(input.toLowerCase())
-                }
-                onChange={(value) => updateScheduleItem(type, item.id, 'time', value)}
-                placeholder="時刻"
-              />
+            <div style={{ width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
+                <DragOutlined style={{ color: '#999', cursor: 'grab' }} />
+                
+                {/* 時刻選択 */}
+                <Select
+                  value={item.time}
+                  options={timeOptions}
+                  size="small"
+                  style={{ width: 90 }}
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.value ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={(value) => updateScheduleItem(type, item.id, 'time', value)}
+                  placeholder="時刻"
+                />
 
-              {/* プロジェクト選択 */}
-              <Select
-                value={item.project}
-                options={projectOptions}
-                size="small"
-                style={{ width: 150 }}
-                onChange={(value) => updateScheduleItem(type, item.id, 'project', value)}
-              />
+                {/* プロジェクト選択 */}
+                <Select
+                  value={item.project}
+                  options={projectOptions}
+                  size="small"
+                  style={{ width: 150 }}
+                  onChange={(value) => updateScheduleItem(type, item.id, 'project', value)}
+                />
 
-              {/* タスク名 */}
-              <Input
-                value={item.task}
-                placeholder="タスク名を入力..."
-                size="small"
-                style={{ flex: 1 }}
-                onChange={(e) => updateScheduleItem(type, item.id, 'task', e.target.value)}
-              />
+                {/* タスク名 */}
+                <Input
+                  value={item.task}
+                  placeholder="タスク名を入力..."
+                  size="small"
+                  style={{ flex: 1 }}
+                  onChange={(e) => updateScheduleItem(type, item.id, 'task', e.target.value)}
+                />
 
-              {/* 削除ボタン */}
-              <Popconfirm
-                title="削除しますか？"
-                onConfirm={() => removeScheduleItem(type, item.id)}
-              >
-                <Button type="text" size="small" danger icon={<DeleteOutlined />} />
-              </Popconfirm>
+                {/* 削除ボタン */}
+                <Popconfirm
+                  title="削除しますか？"
+                  onConfirm={() => removeScheduleItem(type, item.id)}
+                >
+                  <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+                </Popconfirm>
+              </div>
+              {/* 詳細説明 */}
+              <Input.TextArea
+                value={item.description || ''}
+                placeholder="詳細説明（任意）"
+                size="small"
+                autoSize={{ minRows: 1, maxRows: 4 }}
+                style={{ marginTop: 8, marginLeft: 24 }}
+                onChange={(e) => updateScheduleItem(type, item.id, 'description', e.target.value)}
+              />
             </div>
           </List.Item>
         )}

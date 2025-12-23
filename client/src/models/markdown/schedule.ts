@@ -34,6 +34,13 @@ export function generateScheduleLines(items: ScheduleItem[]): string[] {
       lines.push(`* ${item.time}`);
     } else {
       lines.push(`* ${item.time} [${item.project}] ${item.task}`);
+      // 詳細説明がある場合はインデントして追加
+      if (item.description) {
+        const descLines = item.description.split('\n');
+        for (const descLine of descLines) {
+          lines.push(`  ${descLine}`);
+        }
+      }
     }
   }
   
@@ -51,29 +58,52 @@ export function generateScheduleMarkdown(items: ScheduleItem[], title: string): 
 /**
  * MarkdownからスケジュールアイテムをParse
  * 終了時刻行は休憩スロット（task が空）として扱う
+ * 2スペースインデント行は直前のアイテムの詳細説明として扱う
  */
 export function parseScheduleMarkdown(markdown: string): ScheduleItem[] {
   const lines = markdown.split('\n');
   const items: ScheduleItem[] = [];
+  let currentItem: ScheduleItem | null = null;
+  let descriptionLines: string[] = [];
+
+  // 直前のアイテムを保存し、詳細説明を付与
+  const savePendingItem = () => {
+    if (currentItem) {
+      if (descriptionLines.length > 0) {
+        currentItem.description = descriptionLines.join('\n');
+      }
+      items.push(currentItem);
+      currentItem = null;
+      descriptionLines = [];
+    }
+  };
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     
+    // 2スペースインデント行は詳細説明
+    if (line.startsWith('  ') && currentItem) {
+      descriptionLines.push(line.substring(2));
+      continue;
+    }
+    
     // スケジュール項目を検出 (* 08:00 [P99] タスク名 または - 08:00 [P99] タスク名)
     const itemMatch = line.match(/^[*-]\s+(\d{1,2}:\d{2})\s+\[(\w+)\]\s+(.+)$/);
     if (itemMatch) {
-      items.push({
+      savePendingItem();
+      currentItem = {
         id: `s${Date.now()}-${i}`,
         time: itemMatch[1].padStart(5, '0'),
         project: itemMatch[2],
         task: itemMatch[3].trim(),
-      });
+      };
       continue;
     }
     
     // 終了時刻のみの行 (* 18:00 または - 18:00) → 休憩スロットとして扱う
     const endTimeMatch = line.match(/^[*-]\s+(\d{1,2}:\d{2})\s*$/);
     if (endTimeMatch) {
+      savePendingItem();
       items.push({
         id: `break${Date.now()}-${i}`,
         time: endTimeMatch[1].padStart(5, '0'),
@@ -82,6 +112,9 @@ export function parseScheduleMarkdown(markdown: string): ScheduleItem[] {
       });
     }
   }
+  
+  // 最後のアイテムを保存
+  savePendingItem();
   
   return items;
 }
@@ -95,6 +128,7 @@ export interface RenderSlot {
   time: string;
   project: string;
   task: string;
+  description?: string; // 詳細説明
   duration: number; // 動的に計算
   isBreak: boolean;
   startMinutes: number;
@@ -154,6 +188,7 @@ export function calculateRenderSlots(
       time: item.time,
       project: item.project,
       task: item.task,
+      description: item.description,
       duration,
       isBreak: false,
       startMinutes: itemStartMinutes,
