@@ -318,7 +318,7 @@ function parseRoutinesMarkdown(content: string): Config['routines'] {
   // スケジュール行のパターン
   const schedulePattern = /^\*\s+(\d{2}:\d{2})\s+\[([^\]]+)\]\s+(.+)$/;
   // TODO行のパターン（プロジェクトコード先頭対応）
-  const todoPattern = /^-\s+\[([xX\s\*\-])\]\s+(?:\[([^\]]+)\]\s+)?(.+)$/;
+  const todoPattern = /^-\s+\[([xX\s*-])\]\s+(?:\[([^\]]+)\]\s+)?(.+)$/;
   // セクションヘッダーのパターン
   const sectionPattern = /^###\s+\[(\w+)\]\s*$/;
 
@@ -416,7 +416,7 @@ function parseRoutinesMarkdown(content: string): Config['routines'] {
         const isStartOfMonth = taskWithNote.includes('月初');
         
         // タスク名をクリーンアップ
-        let task = taskWithNote
+        const task = taskWithNote
           .replace(/（月末）/g, '')
           .replace(/（月初）/g, '')
           .replace(/\(月末\)/g, '')
