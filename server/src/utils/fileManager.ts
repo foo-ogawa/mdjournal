@@ -31,9 +31,9 @@ interface ConfigPaths {
 }
 
 let configPaths: ConfigPaths = {
-  projects: './sample/config/projects.yaml',
-  routines: './sample/config/routines.yaml',
-  reports: './sample/reports',
+  projects: '',
+  routines: '',
+  reports: '',
 };
 
 // タイムライン設定（ルート設定ファイルから読み込み）
