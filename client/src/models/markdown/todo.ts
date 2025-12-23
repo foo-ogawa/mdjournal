@@ -127,6 +127,14 @@ export function parseTodoMarkdown(markdown: string): { todos: TodoItem[]; notes:
       
       const statusMark = todoMatch[1];
       let taskText = todoMatch[2];
+      let todoProject = currentProject;
+      
+      // プロジェクトコードを先頭から抽出 ([PXX] 形式) - 新フォーマット対応
+      const projectMatch = taskText.match(/^\[([^\]]+)\]\s*/);
+      if (projectMatch) {
+        todoProject = projectMatch[1];
+        taskText = taskText.substring(projectMatch[0].length);
+      }
       
       // 期日を抽出 (@YYYY-MM-DD または @MM-DD) - 先頭にある場合
       let deadline: string | undefined;
@@ -151,7 +159,7 @@ export function parseTodoMarkdown(markdown: string): { todos: TodoItem[]; notes:
       
       currentTodo = {
         id: `t${Date.now()}-${i}`,
-        project: currentProject,
+        project: todoProject,
         task: taskText.trim(),
         status: parseStatusMark(statusMark),
         deadline,

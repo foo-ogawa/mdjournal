@@ -200,10 +200,10 @@ export const Dashboard = () => {
 
   // ルーチンを計画またはTODOに追加
   const handleApplyRoutine = useCallback((items: RoutineItem[]) => {
-    // 時間があるアイテムは計画（タイムライン）に追加
-    const planItems = items.filter(r => r.time && r.time !== '');
-    // 時間がないアイテムはTODOに追加
-    const todoItems = items.filter(r => !r.time || r.time === '');
+    // categoryがplanか、categoryが未設定で時間があるアイテムは計画（タイムライン）に追加
+    const planItems = items.filter(r => r.category === 'plan' || (!r.category && r.time && r.time !== ''));
+    // categoryがtodoか、categoryが未設定で時間がないアイテムはTODOに追加
+    const todoItems = items.filter(r => r.category === 'todo' || (!r.category && (!r.time || r.time === '')));
     
     if (planItems.length > 0) {
       const scheduleItems: ScheduleItem[] = planItems.map((r, index) => ({

@@ -84,10 +84,11 @@ export interface DailyReport {
 // ===========================================
 export interface RoutineItem {
   id?: string;
-  time: string;
+  time?: string;
   project: string;
   task: string;
-  duration: number;
+  duration?: number;
+  category?: 'plan' | 'todo';  // タスク形式かTODO形式か
 }
 
 export interface MonthlyRoutineItem {
@@ -109,11 +110,13 @@ export interface WeeklyRoutine {
 export interface MonthlyRoutine {
   start_of_month?: MonthlyRoutineItem[];
   end_of_month?: MonthlyRoutineItem[];
+  schedule?: RoutineItem[];  // 時間ベースのタスク
 }
 
 export interface QuarterlyRoutine {
   months: number[];
   tasks: MonthlyRoutineItem[];
+  schedule?: RoutineItem[];  // 時間ベースのタスク
 }
 
 export interface YearlyRoutine {
@@ -121,10 +124,12 @@ export interface YearlyRoutine {
   day: number;
   project: string;
   task: string;
+  time?: string;  // 時間ベースのタスクの場合
 }
 
 export interface Routines {
   weekly?: WeeklyRoutine;
+  adhoc?: RoutineItem[];
   monthly?: MonthlyRoutine;
   quarterly?: QuarterlyRoutine[];
   yearly?: YearlyRoutine[];

@@ -115,6 +115,14 @@ export const calendarApi = {
 };
 
 /**
+ * ルーチンMarkdownレスポンス型
+ */
+interface RoutinesMarkdownResponse {
+  content: string;
+  source: 'markdown' | 'yaml';
+}
+
+/**
  * 設定API
  */
 export const configApi = {
@@ -135,6 +143,22 @@ export const configApi = {
     });
   },
 
+  /**
+   * ルーチン設定をMarkdown形式で取得
+   */
+  async getRoutinesMarkdown(): Promise<RoutinesMarkdownResponse> {
+    return fetchApi<RoutinesMarkdownResponse>('/config/routines/markdown');
+  },
+
+  /**
+   * ルーチン設定をMarkdown形式で保存
+   */
+  async saveRoutinesMarkdown(content: string): Promise<RoutinesMarkdownResponse> {
+    return fetchApi<RoutinesMarkdownResponse>('/config/routines/markdown', {
+      method: 'PUT',
+      body: JSON.stringify({ content }),
+    });
+  },
 };
 
 /**

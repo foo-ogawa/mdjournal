@@ -1,14 +1,20 @@
-import { Card, Space, Tag, Typography, List, Button, Badge, Tabs, Checkbox, message } from 'antd';
+import { Card, Space, Tag, Typography, List, Button, Badge, Tabs, Checkbox, message, Input } from 'antd';
 import {
   ReloadOutlined,
   PlusOutlined,
   ClockCircleOutlined,
   CheckSquareOutlined,
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import dayjs from 'dayjs';
 import { useDashboard } from '../Dashboard/DashboardContext';
+import { configApi } from '../../api';
 import type { RoutineItem } from '../../types';
+
+const { TextArea } = Input;
 
 const { Text } = Typography;
 
@@ -23,13 +29,56 @@ interface RoutineViewProps {
 
 export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
   const { config } = useDashboard();
+  const { loadConfig } = config;
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   const weeklyRoutine = config.routines?.weekly || {};
   const adhocRoutines = config.routines?.adhoc || [];
   const monthlyRoutines = config.routines?.monthly || {};
   const quarterlyRoutines = config.routines?.quarterly || [];
   const yearlyRoutines = config.routines?.yearly || [];
+
+  // 編集モード開始時にMarkdownを取得
+  const handleStartEdit = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const result = await configApi.getRoutinesMarkdown();
+      setEditContent(result.content);
+      setIsEditing(true);
+    } catch (error) {
+      console.error('Failed to load routines markdown:', error);
+      message.error('ルーチン設定の読み込みに失敗しました');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // 保存処理
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      await configApi.saveRoutinesMarkdown(editContent);
+      message.success('ルーチン設定を保存しました');
+      setIsEditing(false);
+      // 設定だけを再読み込み（ページ全体はリロードしない）
+      await loadConfig();
+    } catch (error) {
+      console.error('Failed to save routines markdown:', error);
+      message.error('ルーチン設定の保存に失敗しました');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [editContent, loadConfig]);
+
+  // キャンセル処理
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
+    setEditContent('');
+  }, []);
   
   const getProjectColor = (projectCode: string) => {
     return config.getProjectColor(projectCode);
@@ -54,9 +103,21 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
   const todayDayIndex = dayjs().day();
   const todayKey = todayDayIndex === 0 ? 'sunday' : dayTabs[todayDayIndex - 1].key;
 
-  // 月次ルーチンを統合（start_of_month + end_of_month）
+  // 月次ルーチンを統合（schedule + start_of_month + end_of_month）
   const monthlyItems: ExtendedRoutineItem[] = useMemo(() => {
     const items: ExtendedRoutineItem[] = [];
+    // スケジュール形式（時間付きタスク）
+    if (monthlyRoutines.schedule) {
+      monthlyRoutines.schedule.forEach((item: { time?: string; project: string; task: string }) => {
+        items.push({
+          time: item.time,
+          project: item.project,
+          task: item.task,
+          category: 'plan',
+        });
+      });
+    }
+    // TODO形式
     if (monthlyRoutines.start_of_month) {
       monthlyRoutines.start_of_month.forEach((item: { project: string; task: string; category?: 'plan' | 'todo' }) => {
         items.push({
@@ -81,26 +142,52 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
   // 四半期ルーチンをフラット化
   const quarterlyItems: ExtendedRoutineItem[] = useMemo(() => {
     const items: ExtendedRoutineItem[] = [];
-    quarterlyRoutines.forEach((routine: { months: number[]; tasks: { project: string; task: string; category?: 'plan' | 'todo' }[] }) => {
-      const monthsLabel = routine.months.join(',') + '月';
-      routine.tasks.forEach((task) => {
-        items.push({
-          project: task.project,
-          task: `[${monthsLabel}] ${task.task}`,
-          category: task.category || 'todo',
+    quarterlyRoutines.forEach((routine: { months: number[]; tasks: { project: string; task: string; category?: 'plan' | 'todo' }[]; schedule?: { time?: string; project: string; task: string }[] }) => {
+      // スケジュール形式（時間付きタスク）
+      if (routine.schedule) {
+        routine.schedule.forEach((item) => {
+          items.push({
+            time: item.time,
+            project: item.project,
+            task: item.task,
+            category: 'plan',
+          });
         });
-      });
+      }
+      // TODO形式
+      if (routine.months.length > 0) {
+        const monthsLabel = routine.months.join(',') + '月';
+        routine.tasks.forEach((task) => {
+          items.push({
+            project: task.project,
+            task: `[${monthsLabel}] ${task.task}`,
+            category: task.category || 'todo',
+          });
+        });
+      }
     });
     return items;
   }, [quarterlyRoutines]);
 
   // 年次ルーチンを変換
   const yearlyItems: ExtendedRoutineItem[] = useMemo(() => {
-    return yearlyRoutines.map((routine: { month: number; day: number; project: string; task: string }) => ({
-      project: routine.project,
-      task: `[${routine.month}/${routine.day}] ${routine.task}`,
-      category: 'todo' as const,
-    }));
+    return yearlyRoutines.map((routine: { month: number; day: number; project: string; task: string; time?: string }) => {
+      // 時間付きタスク（month/dayが0）の場合はスケジュール形式
+      if (routine.time && routine.month === 0 && routine.day === 0) {
+        return {
+          time: routine.time,
+          project: routine.project,
+          task: routine.task,
+          category: 'plan' as const,
+        };
+      }
+      // それ以外はTODO形式
+      return {
+        project: routine.project,
+        task: routine.task,
+        category: 'todo' as const,
+      };
+    });
   }, [yearlyRoutines]);
 
   // 選択アイテムの切り替え
@@ -140,7 +227,7 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
       return;
     }
 
-    const items: RoutineItem[] = [];
+    const items: ExtendedRoutineItem[] = [];
     selectedItems.forEach(itemKey => {
       const [key, indexStr] = itemKey.split(':');
       const index = parseInt(indexStr, 10);
@@ -160,11 +247,16 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
       }
       
       if (routine) {
+        // 時間がある場合はplan、ない場合またはcategory=todoの場合はtodo
+        const hasTime = routine.time && routine.time !== '';
+        const category = routine.category || (hasTime ? 'plan' : 'todo');
+        
         items.push({
           time: routine.time,
           project: routine.project,
           task: routine.task,
           duration: routine.duration,
+          category,
         });
       }
     });
@@ -172,7 +264,13 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
     if (items.length > 0 && onApplyRoutine) {
       onApplyRoutine(items);
       setSelectedItems(new Set());
-      message.success(`${items.length}件のルーチンを追加しました`);
+      
+      const planCount = items.filter(i => i.category === 'plan').length;
+      const todoCount = items.filter(i => i.category === 'todo').length;
+      const parts = [];
+      if (planCount > 0) parts.push(`PLAN: ${planCount}件`);
+      if (todoCount > 0) parts.push(`TODO: ${todoCount}件`);
+      message.success(`ルーチンを追加しました（${parts.join('、')}）`);
     }
   };
 
@@ -312,6 +410,61 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
     });
   }, [weeklyRoutine, adhocRoutines, monthlyItems, quarterlyItems, yearlyItems, selectedItems, todayKey]);
 
+  // 編集モードのUI
+  if (isEditing) {
+    return (
+      <Card
+        title={
+          <Space>
+            <EditOutlined />
+            <span>ルーチン編集</span>
+          </Space>
+        }
+        extra={
+          <Space>
+            <Button
+              size="small"
+              icon={<CloseOutlined />}
+              onClick={handleCancel}
+              disabled={isSaving}
+            >
+              キャンセル
+            </Button>
+            <Button
+              type="primary"
+              size="small"
+              icon={<SaveOutlined />}
+              onClick={handleSave}
+              loading={isSaving}
+            >
+              保存
+            </Button>
+          </Space>
+        }
+        style={{ height: '100%' }}
+        styles={{ body: { padding: 12, height: 'calc(100% - 57px)', display: 'flex', flexDirection: 'column' } }}
+      >
+        <TextArea
+          value={editContent}
+          onChange={(e) => setEditContent(e.target.value)}
+          style={{ 
+            flex: 1, 
+            fontFamily: 'monospace', 
+            fontSize: 12,
+            resize: 'none',
+          }}
+          placeholder="## [ROUTINES]
+
+### [Mon]
+* 08:00 [P99] タスク確認
+
+### [month]
+- [ ] [P99] 月末タスク"
+        />
+      </Card>
+    );
+  }
+
   return (
     <Card
       title={
@@ -321,15 +474,25 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
         </Space>
       }
       extra={
-        <Button
-          type="primary"
-          size="small"
-          icon={<PlusOutlined />}
-          disabled={selectedItems.size === 0}
-          onClick={handleAddSelected}
-        >
-          追加 {selectedItems.size > 0 && `(${selectedItems.size})`}
-        </Button>
+        <Space>
+          <Button
+            type="primary"
+            size="small"
+            icon={<PlusOutlined />}
+            disabled={selectedItems.size === 0}
+            onClick={handleAddSelected}
+          >
+            追加 {selectedItems.size > 0 && `(${selectedItems.size})`}
+          </Button>
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            onClick={handleStartEdit}
+            loading={isLoading}
+          >
+            編集
+          </Button>
+        </Space>
       }
       style={{ height: '100%' }}
       styles={{ body: { padding: 12, height: 'calc(100% - 57px)', overflow: 'auto' } }}

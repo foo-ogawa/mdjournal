@@ -266,6 +266,52 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /config/routines/markdown:
+    get:
+      tags:
+        - Config
+      summary: ルーチン設定をMarkdown形式で取得
+      description: |
+        ルーチン設定をMarkdown形式で取得します。
+        `data/routines.md` が存在する場合はそのファイルの内容を返し、
+        存在しない場合は `config/routines.yaml` からMarkdown形式に変換して返します。
+      operationId: getRoutinesMarkdown
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoutinesMarkdownResponse"
+
+    put:
+      tags:
+        - Config
+      summary: ルーチン設定をMarkdown形式で保存
+      description: |
+        Markdown形式のルーチン設定を `data/routines.md` に保存します。
+        保存後は、YAML設定ファイルよりもこのMarkdownファイルが優先されます。
+      operationId: saveRoutinesMarkdown
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoutinesMarkdownRequest"
+      responses:
+        "200":
+          description: 保存成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoutinesMarkdownResponse"
+        "400":
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   # ========================================
   # Git連携API
   # ========================================
@@ -811,6 +857,50 @@ components:
           type: string
           description: タスク名
           example: "面談スケジュール調整"
+
+    RoutinesMarkdownResponse:
+      type: object
+      required:
+        - content
+        - source
+      properties:
+        content:
+          type: string
+          description: |
+            Markdown形式のルーチン設定。
+            `## [ROUTINES]` で始まり、曜日ごとのセクション `### [Mon]` 等で構成されます。
+          example: |
+            ## [ROUTINES]
+
+            ### [Mon]
+            * 08:00 [P99] タスク確認・整理
+            * 09:00 [P34] 定例MTG
+
+            ### [month]
+            - [ ] [P99] 月末締め作業
+        source:
+          type: string
+          enum:
+            - markdown
+            - yaml
+          description: |
+            データソース。`markdown` は `data/routines.md` から読み込み、
+            `yaml` は `config/routines.yaml` から変換したことを示します。
+
+    RoutinesMarkdownRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: |
+            保存するMarkdown形式のルーチン設定。
+          example: |
+            ## [ROUTINES]
+
+            ### [Mon]
+            * 08:00 [P99] タスク確認・整理
 
     # ----------------------------------------
     # Git状態
