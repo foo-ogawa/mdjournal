@@ -22,11 +22,11 @@ function minutesToTime(totalMinutes: number): string {
 }
 
 /**
- * スケジュールアイテムからMarkdownを生成
+ * スケジュールアイテムをMarkdown行として生成（共通関数）
  * 休憩（task が空）は終了時刻行として出力
  */
-export function generateScheduleMarkdown(items: ScheduleItem[], title: string): string {
-  const lines = [`## ${title}`];
+export function generateScheduleLines(items: ScheduleItem[]): string[] {
+  const lines: string[] = [];
   
   for (const item of items) {
     if (!item.task) {
@@ -37,6 +37,14 @@ export function generateScheduleMarkdown(items: ScheduleItem[], title: string): 
     }
   }
   
+  return lines;
+}
+
+/**
+ * スケジュールアイテムからMarkdownを生成（セクション付き）
+ */
+export function generateScheduleMarkdown(items: ScheduleItem[], title: string): string {
+  const lines = [`## ${title}`, ...generateScheduleLines(items)];
   return lines.join('\n');
 }
 

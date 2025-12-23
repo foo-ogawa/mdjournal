@@ -5,6 +5,8 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { reportApi } from '../api/client';
 import type { DailyReport, ReportStats, ScheduleItem, TodoItem } from '../types';
+import { generateTodoLines } from '../models/markdown/todo';
+import { generateScheduleLines } from '../models/markdown/schedule';
 import dayjs from 'dayjs';
 
 interface UseReportReturn {
@@ -501,53 +503,23 @@ function generateMarkdownFromReport(report: DailyReport): string {
   lines.push(`# [日報] ${report.author || '名前'} ${report.date}`);
   lines.push('');
   
-  // PLAN
+  // PLAN（共通関数を使用）
   lines.push('## [PLAN]');
   lines.push('');
-  generateScheduleLines(report.plan, lines);
+  lines.push(...generateScheduleLines(report.plan));
   lines.push('');
   
-  // RESULT
+  // RESULT（共通関数を使用）
   lines.push('## [RESULT]');
   lines.push('');
-  generateScheduleLines(report.result, lines);
+  lines.push(...generateScheduleLines(report.result));
   lines.push('');
   
-  // TODO（プロジェクト別にグループ化）
+  // TODO（共通関数を使用）
   lines.push('## [TODO]');
   lines.push('');
-  
-  // プロジェクト別にグループ化
-  const todosByProject: Record<string, typeof report.todos> = {};
-  for (const todo of report.todos) {
-    if (!todosByProject[todo.project]) {
-      todosByProject[todo.project] = [];
-    }
-    todosByProject[todo.project].push(todo);
-  }
-  
-  for (const [project, todos] of Object.entries(todosByProject)) {
-    lines.push(`### ${project}`);
-    for (const todo of todos) {
-      const statusMark = getStatusMark(todo.status);
-      // 期日・優先度をタスク名の前に配置（!!!:高, !!:中, !:低）
-      const deadline = todo.deadline ? `@${todo.deadline} ` : '';
-      const priority = todo.priority === 'high' ? '!!! ' : todo.priority === 'medium' ? '!! ' : todo.priority === 'low' ? '! ' : '';
-      lines.push(`- [${statusMark}] ${deadline}${priority}${todo.task}`);
-      // 詳細説明がある場合はインデントして追加
-      if (todo.description) {
-        const descLines = todo.description.split('\n');
-        for (const descLine of descLines) {
-          lines.push(`  ${descLine}`);
-        }
-      }
-    }
-    lines.push('');
-  }
-  
-  if (Object.keys(todosByProject).length === 0) {
-    lines.push('');
-  }
+  lines.push(...generateTodoLines(report.todos));
+  lines.push('');
   
   // NOTE
   lines.push('## [NOTE]');
@@ -557,30 +529,6 @@ function generateMarkdownFromReport(report: DailyReport): string {
   return lines.join('\n');
 }
 
-
-/**
- * スケジュールアイテムをMarkdown行として生成
- * 休憩スロット（task が空）は終了時刻行として出力
- */
-function generateScheduleLines(items: ScheduleItem[], lines: string[]): void {
-  for (const item of items) {
-    if (!item.task) {
-      // 休憩スロット（task が空）は終了時刻行として出力
-      lines.push(`* ${item.time}`);
-    } else {
-      lines.push(`* ${item.time} [${item.project}] ${item.task}`);
-    }
-  }
-}
-
-function getStatusMark(status: string): string {
-  switch (status) {
-    case 'completed': return 'x';
-    case 'in_progress': return '*';
-    case 'on_hold': return '-';
-    default: return ' ';
-  }
-}
 
 function parseStatusMark(mark: string): TodoItem['status'] {
   switch (mark.toLowerCase()) {
