@@ -766,6 +766,9 @@ components:
             $ref: '#/components/schemas/RoutineItem'
     QuarterlyRoutine:
       type: object
+      required:
+        - months
+        - tasks
       properties:
         months:
           type: array
@@ -787,6 +790,11 @@ components:
             $ref: '#/components/schemas/RoutineItem'
     YearlyRoutine:
       type: object
+      required:
+        - month
+        - day
+        - project
+        - task
       properties:
         month:
           type: integer

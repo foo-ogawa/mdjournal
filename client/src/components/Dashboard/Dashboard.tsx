@@ -12,7 +12,7 @@ import { ProjectView } from '../Project';
 import { RoutineView } from '../Routine';
 import { ReportEditor } from '../Editor';
 import { useReport, useConfig, useCalendar, useUnsavedReports } from '../../hooks';
-import { reportApi } from '../../api';
+import { reportApi } from '../../mdjournal/api.generated';
 import type { RoutineItem, ScheduleItem } from '../../types';
 import './Dashboard.css';
 
@@ -172,10 +172,13 @@ export const Dashboard = () => {
           // 未保存レポートから取得
           const unsavedReport = unsavedReports.getUnsavedReport(date);
           if (unsavedReport) {
-            const response = await reportApi.save(date, {
-              content: unsavedReport.currentMarkdown,
-              git: options?.git,
-              slack: options?.slack,
+            const response = await reportApi.saveReport({
+              date,
+              data: {
+                content: unsavedReport.currentMarkdown,
+                git: options?.git,
+                slack: options?.slack,
+              },
             });
             if (response.saved) {
               successCount++;

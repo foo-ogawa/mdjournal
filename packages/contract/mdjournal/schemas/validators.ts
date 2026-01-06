@@ -599,7 +599,11 @@ export const QuarterlyRoutine = {
           "$ref": "RoutineItem#"
         }
       }
-    }
+    },
+    "required": [
+      "months",
+      "tasks"
+    ]
   } as const;
 
 export const YearlyRoutine = {
@@ -624,7 +628,13 @@ export const YearlyRoutine = {
         "type": "string",
         "description": "開始時刻（HH:MM形式）"
       }
-    }
+    },
+    "required": [
+      "month",
+      "day",
+      "project",
+      "task"
+    ]
   } as const;
 
 export const RoutineItem = {

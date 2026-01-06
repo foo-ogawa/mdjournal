@@ -4,8 +4,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { configApi } from '../mdjournal/api.generated';
-import type { Config } from '@mdjournal/contract/schemas/types.js';
-import type { Project, Routines, RoutineItem } from '../types';
+import type { Config, Project, Routines, RoutineItem } from '../types';
 import dayjs from 'dayjs';
 
 interface UseConfigReturn {
@@ -67,7 +66,7 @@ export function useConfig(): UseConfigReturn {
 
   // プロジェクト取得
   const getProject = useCallback((code: string) => {
-    return config?.projects.find(p => p.code === code);
+    return config?.projects?.find(p => p.code === code);
   }, [config]);
 
   // プロジェクトカラー取得
@@ -82,7 +81,7 @@ export function useConfig(): UseConfigReturn {
 
   // アクティブプロジェクト取得
   const getActiveProjects = useCallback(() => {
-    return config?.projects.filter(p => p.active) || [];
+    return config?.projects?.filter(p => p.active) || [];
   }, [config]);
 
   // 曜日のルーチン取得

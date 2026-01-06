@@ -253,18 +253,18 @@ export interface MonthlyRoutine {
 
 export interface QuarterlyRoutine {
   /** 実行月 */
-  months?: number[];
-  tasks?: MonthlyRoutineItem[];
+  months: number[];
+  tasks: MonthlyRoutineItem[];
   schedule?: RoutineItem[];
 }
 
 export interface YearlyRoutine {
   /** 実行月 */
-  month?: number;
+  month: number;
   /** 実行日 */
-  day?: number;
-  project?: string;
-  task?: string;
+  day: number;
+  project: string;
+  task: string;
   /** 開始時刻（HH:MM形式） */
   time?: string;
 }

@@ -825,6 +825,9 @@ components:
 
     QuarterlyRoutine:
       type: object
+      required:
+        - months
+        - tasks
       properties:
         months:
           type: array
@@ -843,6 +846,11 @@ components:
 
     YearlyRoutine:
       type: object
+      required:
+        - month
+        - day
+        - project
+        - task
       properties:
         month:
           type: integer

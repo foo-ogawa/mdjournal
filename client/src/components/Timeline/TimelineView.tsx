@@ -65,19 +65,13 @@ export const TimelineView = ({ selectedDate, selectedProjects = [] }: TimelineVi
   const planItems = useMemo(() => currentReport?.plan || [], [currentReport?.plan]);
   const resultItems = useMemo(() => currentReport?.result || [], [currentReport?.result]);
   
-  // タイムライン設定
-  const timelineConfig = config.config?.timeline || {
-    hourHeight: 60,
-    maxHours: 36,
-    defaultStartHour: 8,
-    defaultEndHour: 20,
-    snapMinutes: 15,
-  };
-  const hourHeight = timelineConfig.hourHeight;
-  const maxHours = timelineConfig.maxHours;
-  const defaultStartHour = timelineConfig.defaultStartHour;
-  const defaultEndHour = timelineConfig.defaultEndHour;
-  const snapMinutes = timelineConfig.snapMinutes;
+  // タイムライン設定（デフォルト値を設定）
+  const timelineConfig = config.config?.timeline;
+  const hourHeight = timelineConfig?.hourHeight ?? 60;
+  const maxHours = timelineConfig?.maxHours ?? 36;
+  const defaultStartHour = timelineConfig?.defaultStartHour ?? 8;
+  const defaultEndHour = timelineConfig?.defaultEndHour ?? 20;
+  const snapMinutes = timelineConfig?.snapMinutes ?? 15;
   
   // 時間範囲を計算（計画と実績の両方を考慮）
   const timeRange = useMemo(() => {

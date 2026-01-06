@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { generateReportMarkdown, parseReportMarkdown } from './report';
-import type { DailyReport, ScheduleItem, TodoItem } from '../../types';
+import type { DailyReport } from '../../types';
 
 describe('generateReportMarkdown', () => {
   it('should generate markdown for a complete report', () => {
