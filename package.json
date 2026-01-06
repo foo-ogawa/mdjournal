@@ -1,6 +1,6 @@
 {
   "name": "mdjournal",
-  "version": "1.0.17",
+  "version": "1.1.0",
   "description": "Markdown日報を視覚的に管理するダッシュボードアプリケーション",
   "type": "module",
   "main": "dist/server/src/index.js",
