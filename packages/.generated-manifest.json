@@ -1,0 +1,49 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-01-06T12:50:15.759Z",
+  "generatorVersion": "1.0.0",
+  "files": {
+    "contract/mdjournal/docs/api-reference.html": {
+      "sha256": "c2df159a3f085b646f9054204c2ac84dfd6af0a564bd82a1cc48a23cefc2d98c"
+    },
+    "contract/mdjournal/docs/openapi.generated.yaml": {
+      "sha256": "a255140b1147b5970b9a35a95198b2aa0de662860ccb67a35a74967f6f81478f"
+    },
+    "contract/mdjournal/domains/CalendarApi.ts": {
+      "sha256": "c5f61a1a7dbbe926c7fa96b5397a8d4a401ff0f9b61be9ac4197e934caae4a29"
+    },
+    "contract/mdjournal/domains/ConfigApi.ts": {
+      "sha256": "cd6e7db9e099d1cd12a535f50c8ae26bec7f3a96841445749f8a62854e3a71c4"
+    },
+    "contract/mdjournal/domains/GitApi.ts": {
+      "sha256": "456a0e3dfa91b92e754e3107065441ecd92b025f55d8f1025e8048813adb01eb"
+    },
+    "contract/mdjournal/domains/ReportApi.ts": {
+      "sha256": "0849cc64ef31c4aaf3ecdca65df66fe20d0cdffad48ca8800f58e09557065da0"
+    },
+    "contract/mdjournal/domains/index.ts": {
+      "sha256": "0c1dfe9d8f741a27fc7fc7c37a718d471f565d642f19c38c6882114db1e25f32"
+    },
+    "contract/mdjournal/errors/index.ts": {
+      "sha256": "e448e50128b60b19eebfcee30127a426b69d0919b8219bfd6d38ff3628a62ac7"
+    },
+    "contract/mdjournal/index.ts": {
+      "sha256": "10fe15940bbbd57ec78c21c14fad7fb3343782b351310f29180931141666b7dd"
+    },
+    "contract/mdjournal/package.json": {
+      "sha256": "dae4ec707602bcc34e5dd6492dc7455a1f74785235b2a453817f01114ebc73f0"
+    },
+    "contract/mdjournal/schemas/index.ts": {
+      "sha256": "7bc8d5ef473d819f1466ed70422b325da29da0313fd7f54a9a1d657d97794f2a"
+    },
+    "contract/mdjournal/schemas/types.ts": {
+      "sha256": "f8bd1acd87266030069f39fd23f609edbcdd4e399802a9376cd6de984dd3b04e"
+    },
+    "contract/mdjournal/schemas/validators.ts": {
+      "sha256": "f20553d04c67728283472356b251036a8dbfaf3053b327be46e1715fca6bf11e"
+    },
+    "contract/mdjournal/tsconfig.json": {
+      "sha256": "3ba12d031013d35707a7591d36d4ed7dd89c833cdb1dc779e1f0cf426c5613be"
+    }
+  }
+}

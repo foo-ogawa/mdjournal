@@ -1,0 +1,58 @@
+/**
+ * {{domainName}}Domain API Interface
+ * 
+ * ⚠️ AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY
+ * Generated from OpenAPI specification by micro-contracts
+ * 
+ * @generated
+ */
+
+import type {
+{{#each usedTypes}}
+  {{this}},
+{{/each}}
+} from '../schemas/types.js';
+
+// ========================================
+// Input Types
+// ========================================
+
+{{#each methods}}
+/**
+ * Input type for {{name}}
+ * {{description}}
+ */
+export interface {{../domainName}}Domain_{{name}}Input {
+{{#each params}}
+  /** {{description}} */
+  {{name}}{{#unless required}}?{{/unless}}: {{type}};
+{{/each}}
+{{#if requestBodyType}}
+  /** Request body */
+  body{{#unless requestBodyRequired}}?{{/unless}}: {{requestBodyType}};
+{{/if}}
+}
+
+{{/each}}
+
+// ========================================
+// Domain Interface
+// ========================================
+
+/**
+ * {{domainName}} Domain API
+ * 
+ * HTTP-agnostic interface for {{domainName}} operations.
+ * Implementations should handle business logic without HTTP concerns.
+ */
+export interface {{domainName}}DomainApi {
+{{#each methods}}
+  /**
+   * {{summary}}
+   * {{description}}
+   */
+  {{name}}(input: {{../domainName}}Domain_{{name}}Input): Promise<{{returnType}}>;
+
+{{/each}}
+}
+

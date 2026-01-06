@@ -1,0 +1,41 @@
+# micro-contracts configuration for mdJournal
+# OpenAPI as Single Source of Truth (SSoT)
+
+# Common settings (defaults for all modules)
+defaults:
+  # 契約パッケージの出力先
+  contract:
+    output: packages/contract/{module}
+
+  # Template-based outputs
+  outputs:
+    # Express.jsサーバールート
+    server-routes:
+      output: server/src/{module}/routes.generated.ts
+      template: spec/default/templates/express-routes.hbs
+      config:
+        contractPackage: "@mdjournal/contract"
+
+    # フロントエンドAPIクライアント
+    frontend-client:
+      output: client/src/{module}/api.generated.ts
+      template: spec/default/templates/fetch-client.hbs
+      config:
+        contractPackage: "@mdjournal/contract"
+
+# モジュール定義
+modules:
+  mdjournal:
+    openapi: spec/mdjournal/openapi/mdjournal.yaml
+    dependsOn: []
+
+# Guardrails設定（オプション）
+guardrails:
+  # 生成ファイルへの直接編集を禁止
+  blockDirectEdits: true
+  # ドリフト検出
+  detectDrift: true
+  # 生成ファイルのパターン
+  generatedFilePatterns:
+    - "**/*.generated.ts"
+    - "packages/contract/**/*.ts"

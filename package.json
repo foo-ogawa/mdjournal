@@ -1,8 +1,81 @@
 {
-  "name": "@mdjournal/monorepo",
-  "private": true,
-  "version": "1.0.0",
-  "description": "mdJournal - Markdown日報を視覚的に管理するダッシュボード",
+  "name": "mdjournal",
+  "version": "1.0.17",
+  "description": "Markdown日報を視覚的に管理するダッシュボードアプリケーション",
+  "type": "module",
+  "main": "dist/server/src/index.js",
+  "types": "dist/server/src/index.d.ts",
+  "bin": {
+    "mdjournal": "./dist/server/src/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx server/src/cli.ts",
+    "dev:client": "npm run dev --workspace=client",
+    "build": "npm run build:client && npm run build:server && npm run copy:assets",
+    "build:client": "npm run build --workspace=client",
+    "build:server": "tsc --project server/tsconfig.json",
+    "copy:assets": "cp -r client/dist dist/client && cp README.md dist/ && cp -r docs dist/",
+    "start": "node dist/server/src/cli.js",
+    "test": "npm run test --workspace=server && npm run test --workspace=client",
+    "test:server": "npm run test --workspace=server",
+    "test:client": "npm run test --workspace=client",
+    "test:coverage": "npm run test:coverage --workspace=server && npm run test:coverage --workspace=client",
+    "lint": "npm run lint --workspace=client",
+    "clean": "rm -rf dist",
+    "generate": "npx micro-contracts generate --config micro-contracts.config.yaml && npm run manifest",
+    "manifest": "npx micro-contracts manifest -d packages/",
+    "manifest:verify": "npx micro-contracts manifest -d packages/ --verify",
+    "check": "npx micro-contracts check --guardrails micro-contracts.guardrails.yaml",
+    "check:gate1": "npx micro-contracts check --guardrails micro-contracts.guardrails.yaml --gate 1",
+    "check:gate2": "npx micro-contracts check --guardrails micro-contracts.guardrails.yaml --gate 2",
+    "check:gate3": "npx micro-contracts check --guardrails micro-contracts.guardrails.yaml --gate 3",
+    "check:gate4": "npx micro-contracts check --guardrails micro-contracts.guardrails.yaml --gate 4",
+    "check:allowlist": "npx micro-contracts check --guardrails micro-contracts.guardrails.yaml --only allowlist",
+    "check:drift": "npx micro-contracts check --guardrails micro-contracts.guardrails.yaml --only drift",
+    "check:manifest": "npx micro-contracts check --guardrails micro-contracts.guardrails.yaml --only manifest",
+    "prepublishOnly": "npm run build"
+  },
+  "workspaces": [
+    "packages/contract/mdjournal",
+    "server",
+    "client"
+  ],
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0",
+    "remark": "^15.0.1",
+    "remark-parse": "^11.0.0",
+    "simple-git": "^3.22.0",
+    "unified": "^11.0.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.10.5",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.28.0",
+    "globals": "^16.2.0",
+    "micro-contracts": "^0.9.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.33.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "daily-report",
+    "journal",
+    "dashboard",
+    "markdown",
+    "todo",
+    "timeline",
+    "time-tracking"
+  ],
   "author": "foo-ogawa",
   "license": "MIT",
   "homepage": "https://github.com/foo-ogawa/mdjournal#readme",
@@ -13,29 +86,7 @@
     "type": "git",
     "url": "git+https://github.com/foo-ogawa/mdjournal.git"
   },
-  "workspaces": [
-    "server",
-    "client"
-  ],
-  "scripts": {
-    "dev": "npm run dev --workspace=server",
-    "dev:client": "npm run dev --workspace=client",
-    "build": "npm run build:client && npm run build:server && npm run copy:client",
-    "build:client": "npm run build --workspace=client",
-    "build:server": "npm run build --workspace=server",
-    "copy:client": "cp -r client/dist server/dist/client",
-    "prepublish:server": "npm run build",
-    "start": "npm run start --workspace=server",
-    "test": "npm run test --workspace=server --if-present",
-    "lint": "npm run lint --workspace=server && npm run lint --workspace=client",
-    "clean": "rm -rf server/dist client/dist"
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.0"
-  },
   "engines": {
     "node": ">=20.0.0"
   }
 }
-
-

@@ -11,8 +11,8 @@ import {
 import { useState, useMemo, useCallback } from 'react';
 import dayjs from 'dayjs';
 import { useDashboard } from '../Dashboard/DashboardContext';
-import { configApi } from '../../api';
-import type { RoutineItem } from '../../types';
+import { configApi } from '../../mdjournal/api.generated';
+import type { RoutineItem, QuarterlyRoutine, YearlyRoutine } from '../../types';
 
 const { TextArea } = Input;
 
@@ -46,7 +46,7 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
   const handleStartEdit = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await configApi.getRoutinesMarkdown();
+      const result = await configApi.getRoutinesMarkdown({});
       setEditContent(result.content);
       setIsEditing(true);
     } catch (error) {
@@ -61,7 +61,7 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
   const handleSave = useCallback(async () => {
     setIsSaving(true);
     try {
-      await configApi.saveRoutinesMarkdown(editContent);
+      await configApi.saveRoutinesMarkdown({ data: { content: editContent } });
       message.success('ルーチン設定を保存しました');
       setIsEditing(false);
       // 設定だけを再読み込み（ページ全体はリロードしない）
@@ -142,7 +142,7 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
   // 四半期ルーチンをフラット化
   const quarterlyItems: ExtendedRoutineItem[] = useMemo(() => {
     const items: ExtendedRoutineItem[] = [];
-    quarterlyRoutines.forEach((routine: { months: number[]; tasks: { project: string; task: string; category?: 'plan' | 'todo' }[]; schedule?: { time?: string; project: string; task: string }[] }) => {
+    quarterlyRoutines.forEach((routine: QuarterlyRoutine) => {
       // スケジュール形式（時間付きタスク）
       if (routine.schedule) {
         routine.schedule.forEach((item) => {
@@ -171,7 +171,7 @@ export const RoutineView = ({ onApplyRoutine }: RoutineViewProps) => {
 
   // 年次ルーチンを変換
   const yearlyItems: ExtendedRoutineItem[] = useMemo(() => {
-    return yearlyRoutines.map((routine: { month: number; day: number; project: string; task: string; time?: string }) => {
+    return yearlyRoutines.map((routine: YearlyRoutine) => {
       // 時間付きタスク（month/dayが0）の場合はスケジュール形式
       if (routine.time && routine.month === 0 && routine.day === 0) {
         return {

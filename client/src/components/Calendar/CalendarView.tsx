@@ -281,8 +281,8 @@ export const CalendarView = ({ selectedDate, onDateSelect }: CalendarViewProps) 
           color: '#666',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>稼働日数: {calendar.summary.workDays}日</span>
-            <span>合計: {calendar.summary.totalResultHours.toFixed(1)}h</span>
+            <span>稼働日数: {calendar.summary.workDays ?? 0}日</span>
+            <span>合計: {(calendar.summary.totalResultHours ?? 0).toFixed(1)}h</span>
           </div>
         </div>
       )}

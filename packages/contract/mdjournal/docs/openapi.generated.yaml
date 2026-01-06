@@ -1,0 +1,998 @@
+# Auto-generated OpenAPI specification
+# DO NOT EDIT MANUALLY
+# 
+# Source: spec/mdjournal/openapi/mdjournal.yaml
+# Regenerate: micro-contracts generate
+
+openapi: 3.0.3
+info:
+  title: mdJournal API
+  description: |
+    Markdown形式で管理している日報データをグラフィカルに表示・編集するための
+    Webダッシュボードアプリケーション「mdJournal」のREST API仕様です。
+
+    ## 設計方針
+    - 日報データはMarkdownファイルとして管理し、フロントエンドでパース・編集
+    - サーバーサイドはファイルの読み書きと、複数日にまたがる集計処理を担当
+    - 外部連携（Git commit/push、Slack投稿）は日報保存時のオプションとして実行
+    - 連携設定（Slack/Git/GCal）はサーバーサイドで管理、APIには露出しない
+  version: 1.0.0
+  contact:
+    name: mdJournal
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:3001/api
+    description: ローカル開発サーバー
+tags:
+  - name: Reports
+    description: 日報ファイルの操作（Markdownベース）
+  - name: Calendar
+    description: カレンダー用の集計データ
+  - name: Config
+    description: 設定の管理（プロジェクト・ルーチン）
+  - name: Git
+    description: Git連携（状態取得）
+paths:
+  /reports/{date}:
+    get:
+      tags:
+        - Reports
+      summary: 日報取得
+      description: |
+        指定した日付の日報を取得します。
+        レスポンスにはMarkdown本文と、frontmatterから抽出した統計情報が含まれます。
+        日報が存在しない場合は404を返します。
+      operationId: getReport
+      x-micro-contracts-domain: Report
+      x-micro-contracts-method: getReport
+      parameters:
+        - name: date
+          in: path
+          required: true
+          description: 日付（YYYY-MM-DD形式）
+          schema:
+            type: string
+            format: date
+            example: '2025-12-18'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+        '404':
+          description: 日報が存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Reports
+      summary: 日報保存
+      description: |
+        指定した日付の日報を保存します。
+        日報が存在しない場合は新規作成、存在する場合は上書き更新します。
+
+        **サーバーサイド処理**:
+        - Markdownをパースして統計情報（計画時間、実績時間、TODO数等）を計算
+        - 統計情報をYAML frontmatterとしてファイル先頭に追加して保存
+        - これにより、カレンダー表示時に高速な集計が可能
+
+        オプションでGit commit/push、Slack投稿を同時に実行できます。
+      operationId: saveReport
+      x-micro-contracts-domain: Report
+      x-micro-contracts-method: saveReport
+      parameters:
+        - name: date
+          in: path
+          required: true
+          description: 日付（YYYY-MM-DD形式）
+          schema:
+            type: string
+            format: date
+            example: '2025-12-18'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportSaveRequest'
+      responses:
+        '200':
+          description: 保存成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportSaveResponse'
+        '400':
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Reports
+      summary: 日報削除
+      description: 指定した日付の日報を削除します。
+      operationId: deleteReport
+      x-micro-contracts-domain: Report
+      x-micro-contracts-method: deleteReport
+      parameters:
+        - name: date
+          in: path
+          required: true
+          description: 日付（YYYY-MM-DD形式）
+          schema:
+            type: string
+            format: date
+            example: '2025-12-18'
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          description: 日報が存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /calendar:
+    get:
+      tags:
+        - Calendar
+      summary: カレンダー用集計データ取得
+      description: |
+        指定した年月の日別統計データを取得します。
+
+        **高速化**: 各日報ファイルのfrontmatterから統計情報を読み取るため、
+        Markdown本文のパースは不要で高速に集計できます。
+      operationId: getCalendarData
+      x-micro-contracts-domain: Calendar
+      x-micro-contracts-method: getCalendarData
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: 年（YYYY形式）
+          schema:
+            type: integer
+            minimum: 2000
+            maximum: 2100
+            example: 2025
+        - name: month
+          in: query
+          required: true
+          description: 月（1-12）
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 12
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarData'
+        '400':
+          description: パラメータが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /calendar/months:
+    get:
+      tags:
+        - Calendar
+      summary: 日報が存在する年月リスト取得
+      description: |
+        日報ファイルが存在する年月のリストを取得します。
+        カレンダービューの年月プルダウンで使用します。
+      operationId: getAvailableYearMonths
+      x-micro-contracts-domain: Calendar
+      x-micro-contracts-method: getAvailableYearMonths
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YearMonthsResponse'
+  /config:
+    get:
+      tags:
+        - Config
+      summary: 設定取得
+      description: |
+        プロジェクトマスタとルーチン定義を取得します。
+      operationId: getConfig
+      x-micro-contracts-domain: Config
+      x-micro-contracts-method: getConfig
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+    put:
+      tags:
+        - Config
+      summary: 設定更新
+      description: |
+        設定を更新します。部分更新が可能で、指定されたキーのみ更新されます。
+      operationId: updateConfig
+      x-micro-contracts-domain: Config
+      x-micro-contracts-method: updateConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Config'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+        '400':
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /config/routines/markdown:
+    get:
+      tags:
+        - Config
+      summary: ルーチン設定をMarkdown形式で取得
+      description: |
+        ルーチン設定をMarkdown形式で取得します。
+        `data/routines.md` が存在する場合はそのファイルの内容を返し、
+        存在しない場合は `config/routines.yaml` からMarkdown形式に変換して返します。
+      operationId: getRoutinesMarkdown
+      x-micro-contracts-domain: Config
+      x-micro-contracts-method: getRoutinesMarkdown
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutinesMarkdownResponse'
+    put:
+      tags:
+        - Config
+      summary: ルーチン設定をMarkdown形式で保存
+      description: |
+        Markdown形式のルーチン設定を `data/routines.md` に保存します。
+        保存後は、YAML設定ファイルよりもこのMarkdownファイルが優先されます。
+      operationId: saveRoutinesMarkdown
+      x-micro-contracts-domain: Config
+      x-micro-contracts-method: saveRoutinesMarkdown
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutinesMarkdownRequest'
+      responses:
+        '200':
+          description: 保存成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutinesMarkdownResponse'
+        '400':
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /git/status:
+    get:
+      tags:
+        - Git
+      summary: Git状態取得
+      description: |
+        リポジトリのGit状態（未コミットファイル、未プッシュコミット）を取得します。
+        保存ダイアログでコミット・プッシュ対象を表示するために使用します。
+      operationId: getGitStatus
+      x-micro-contracts-domain: Git
+      x-micro-contracts-method: getStatus
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtendedGitStatus'
+        '500':
+          description: Git操作エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  parameters:
+    DatePath:
+      name: date
+      in: path
+      required: true
+      description: 日付（YYYY-MM-DD形式）
+      schema:
+        type: string
+        format: date
+        example: '2025-12-18'
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+          example: NOT_FOUND
+        message:
+          type: string
+          description: エラーメッセージ
+          example: 指定された日報が見つかりません
+    ReportStats:
+      type: object
+      description: |
+        日報の統計情報。ファイル保存時にサーバーが計算し、
+        YAML frontmatterとしてMarkdownファイル先頭に保存されます。
+      required:
+        - planHours
+        - resultHours
+        - todoCount
+        - todoCompleted
+        - todoInProgress
+        - projectHours
+        - updatedAt
+      properties:
+        planHours:
+          type: number
+          format: float
+          description: 計画時間（時間）
+          example: 8
+        resultHours:
+          type: number
+          format: float
+          description: 実績時間（時間）
+          example: 7.5
+        todoCount:
+          type: integer
+          description: TODO総数
+          example: 5
+        todoCompleted:
+          type: integer
+          description: 完了TODO数
+          example: 2
+        todoInProgress:
+          type: integer
+          description: 進行中TODO数
+          example: 1
+        projectHours:
+          type: object
+          description: プロジェクト別実績時間（時間）
+          additionalProperties:
+            type: number
+            format: float
+          example:
+            P99: 2.5
+            P34: 3
+            P14: 2
+        updatedAt:
+          type: string
+          format: date-time
+          description: 最終更新日時
+          example: '2025-12-18T17:30:00+09:00'
+    ReportResponse:
+      type: object
+      required:
+        - date
+        - content
+        - stats
+      properties:
+        date:
+          type: string
+          format: date
+          description: 日報の日付
+          example: '2025-12-18'
+        content:
+          type: string
+          description: |
+            日報のMarkdownコンテンツ（frontmatterを除いた本文部分）
+        stats:
+          $ref: '#/components/schemas/ReportStats'
+    ReportSaveRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: |
+            日報のMarkdownコンテンツ（frontmatterなしの本文のみ）。
+            サーバーが統計情報を計算してfrontmatterを付与して保存します。
+        git:
+          $ref: '#/components/schemas/GitOptions'
+        slack:
+          $ref: '#/components/schemas/SlackOptions'
+    GitOptions:
+      type: object
+      description: Git操作オプション
+      properties:
+        commit:
+          type: boolean
+          description: 保存後にコミットするか
+          default: false
+        push:
+          type: boolean
+          description: コミット後にプッシュするか（commitがtrueの場合のみ有効）
+          default: false
+        message:
+          type: string
+          description: コミットメッセージ（省略時は自動生成）
+          example: '日報更新: 2025-12-18'
+    SlackOptions:
+      type: object
+      description: Slack投稿オプション
+      properties:
+        post:
+          type: boolean
+          description: Slackに投稿するか
+          default: false
+    GitResult:
+      type: object
+      description: Git操作結果
+      properties:
+        committed:
+          type: boolean
+          description: コミットが成功したか
+        pushed:
+          type: boolean
+          description: プッシュが成功したか
+        commitHash:
+          type: string
+          description: コミットハッシュ
+          example: a1b2c3d
+        error:
+          type: string
+          description: エラーメッセージ（失敗時）
+    SlackResult:
+      type: object
+      description: Slack投稿結果
+      properties:
+        posted:
+          type: boolean
+          description: 投稿が成功したか
+        error:
+          type: string
+          description: エラーメッセージ（失敗時）
+    ReportSaveResponse:
+      type: object
+      required:
+        - date
+        - saved
+        - stats
+      properties:
+        date:
+          type: string
+          format: date
+          description: 保存した日報の日付
+          example: '2025-12-18'
+        saved:
+          type: boolean
+          description: 保存が成功したか
+          example: true
+        stats:
+          $ref: '#/components/schemas/ReportStats'
+        git:
+          $ref: '#/components/schemas/GitResult'
+        slack:
+          $ref: '#/components/schemas/SlackResult'
+    CalendarData:
+      type: object
+      required:
+        - year
+        - month
+        - days
+      properties:
+        year:
+          type: integer
+          description: 年
+          example: 2025
+        month:
+          type: integer
+          description: 月
+          example: 12
+        days:
+          type: array
+          description: |
+            日別統計データ。各日報ファイルのfrontmatterから取得するため高速。
+          items:
+            $ref: '#/components/schemas/DayStats'
+        summary:
+          $ref: '#/components/schemas/CalendarSummary'
+    DayStats:
+      type: object
+      required:
+        - date
+        - hasReport
+      properties:
+        date:
+          type: string
+          format: date
+          description: 日付
+          example: '2025-12-18'
+        hasReport:
+          type: boolean
+          description: 日報が存在するか
+          example: true
+        planHours:
+          type: number
+          format: float
+          description: 計画時間（時間）
+          example: 8
+        resultHours:
+          type: number
+          format: float
+          description: 実績時間（時間）
+          example: 7.5
+        todoCount:
+          type: integer
+          description: TODO総数
+          example: 5
+        todoCompleted:
+          type: integer
+          description: 完了TODO数
+          example: 2
+    CalendarSummary:
+      type: object
+      description: 月間サマリー
+      properties:
+        totalPlanHours:
+          type: number
+          format: float
+          description: 計画時間合計
+          example: 160.5
+        totalResultHours:
+          type: number
+          format: float
+          description: 実績時間合計
+          example: 155
+        workDays:
+          type: integer
+          description: 稼働日数（日報が存在する日数）
+          example: 20
+        todoCompleted:
+          type: integer
+          description: 完了TODO数
+          example: 45
+        projectHours:
+          type: object
+          description: プロジェクト別実績時間合計（時間）
+          additionalProperties:
+            type: number
+            format: float
+          example:
+            P99: 40
+            P34: 60
+            P14: 55
+    YearMonthsResponse:
+      type: object
+      required:
+        - yearMonths
+      properties:
+        yearMonths:
+          type: array
+          description: 日報が存在する年月のリスト（新しい順）
+          items:
+            $ref: '#/components/schemas/YearMonth'
+    YearMonth:
+      type: object
+      required:
+        - year
+        - month
+      properties:
+        year:
+          type: integer
+          description: 年
+          example: 2025
+        month:
+          type: integer
+          description: 月（1-12）
+          example: 12
+    Config:
+      type: object
+      properties:
+        projects:
+          type: array
+          description: プロジェクトマスタ
+          items:
+            $ref: '#/components/schemas/Project'
+        routines:
+          $ref: '#/components/schemas/Routines'
+        timeline:
+          $ref: '#/components/schemas/TimelineConfig'
+        slack:
+          $ref: '#/components/schemas/SlackConfig'
+    Project:
+      type: object
+      required:
+        - code
+        - name
+        - color
+        - category
+        - active
+      properties:
+        code:
+          type: string
+          description: プロジェクトコード
+          example: P99
+        name:
+          type: string
+          description: プロジェクト名
+          example: 社内業務
+        color:
+          type: string
+          pattern: ^#[0-9A-Fa-f]{6}$
+          description: プロジェクトカラー（HEX形式）
+          example: '#52c41a'
+        category:
+          type: string
+          enum:
+            - internal
+            - client
+            - personal
+          description: カテゴリ
+          example: internal
+        client:
+          type: string
+          description: クライアント名
+          example: A社
+        active:
+          type: boolean
+          description: アクティブフラグ
+          example: true
+    TimelineConfig:
+      type: object
+      description: タイムライン表示設定
+      properties:
+        hourHeight:
+          type: integer
+          description: 1時間あたりの高さ（ピクセル）
+          example: 60
+        maxHours:
+          type: integer
+          description: 最大表示時間
+          example: 36
+        defaultStartHour:
+          type: integer
+          description: デフォルト開始時刻
+          example: 8
+        defaultEndHour:
+          type: integer
+          description: デフォルト終了時刻
+          example: 18
+        snapMinutes:
+          type: integer
+          description: ドラッグ時のスナップ単位（分）
+          example: 15
+    SlackConfig:
+      type: object
+      description: Slack連携設定
+      properties:
+        enabled:
+          type: boolean
+          description: Slack連携が有効か
+          example: true
+    Routines:
+      type: object
+      properties:
+        weekly:
+          $ref: '#/components/schemas/WeeklyRoutine'
+        adhoc:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+        monthly:
+          $ref: '#/components/schemas/MonthlyRoutine'
+        quarterly:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyRoutine'
+        yearly:
+          type: array
+          items:
+            $ref: '#/components/schemas/YearlyRoutine'
+    WeeklyRoutine:
+      type: object
+      description: 週次ルーチン（曜日別）
+      properties:
+        monday:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+        tuesday:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+        wednesday:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+        thursday:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+        friday:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+        saturday:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+        sunday:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+    MonthlyRoutine:
+      type: object
+      description: 月次ルーチン
+      properties:
+        start_of_month:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyRoutineItem'
+        end_of_month:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyRoutineItem'
+        schedule:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+    QuarterlyRoutine:
+      type: object
+      required:
+        - months
+        - tasks
+      properties:
+        months:
+          type: array
+          items:
+            type: integer
+          description: 実行月
+          example:
+            - 3
+            - 6
+            - 9
+            - 12
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyRoutineItem'
+        schedule:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineItem'
+    YearlyRoutine:
+      type: object
+      required:
+        - month
+        - day
+        - project
+        - task
+      properties:
+        month:
+          type: integer
+          description: 実行月
+          example: 11
+        day:
+          type: integer
+          description: 実行日
+          example: 10
+        project:
+          type: string
+          example: P99
+        task:
+          type: string
+          example: クラウドサービス契約更新
+        time:
+          type: string
+          description: 開始時刻（HH:MM形式）
+          example: '10:00'
+    RoutineItem:
+      type: object
+      required:
+        - project
+        - task
+      properties:
+        id:
+          type: string
+          description: ルーチンID
+        time:
+          type: string
+          pattern: ^([01]?[0-9]|2[0-3]):[0-5][0-9]$
+          description: 開始時刻（HH:MM形式）
+          example: '08:00'
+        project:
+          type: string
+          description: プロジェクトコード
+          example: P99
+        task:
+          type: string
+          description: タスク名
+          example: タスク確認・整理、日報返信
+        duration:
+          type: integer
+          description: 所要時間（分）
+          example: 60
+        category:
+          type: string
+          enum:
+            - plan
+            - todo
+          description: タスク形式かTODO形式か
+    MonthlyRoutineItem:
+      type: object
+      required:
+        - project
+        - task
+      properties:
+        project:
+          type: string
+          description: プロジェクトコード
+          example: P99
+        task:
+          type: string
+          description: タスク名
+          example: 面談スケジュール調整
+        category:
+          type: string
+          enum:
+            - plan
+            - todo
+          description: タスク形式かTODO形式か
+    RoutinesMarkdownResponse:
+      type: object
+      required:
+        - content
+        - source
+      properties:
+        content:
+          type: string
+          description: |
+            Markdown形式のルーチン設定。
+        source:
+          type: string
+          enum:
+            - markdown
+            - yaml
+          description: |
+            データソース。`markdown` は `data/routines.md` から読み込み、
+            `yaml` は `config/routines.yaml` から変換したことを示します。
+    RoutinesMarkdownRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: |
+            保存するMarkdown形式のルーチン設定。
+    ExtendedGitStatus:
+      type: object
+      required:
+        - branch
+        - uncommitted
+        - unpushed
+      properties:
+        branch:
+          type: string
+          description: 現在のブランチ名
+          example: main
+        uncommitted:
+          $ref: '#/components/schemas/UncommittedChanges'
+        unpushed:
+          $ref: '#/components/schemas/UnpushedCommits'
+        lastCommit:
+          $ref: '#/components/schemas/CommitInfo'
+    UncommittedChanges:
+      type: object
+      required:
+        - count
+        - files
+      properties:
+        count:
+          type: integer
+          description: 未コミットファイル数
+          example: 2
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileStatus'
+    FileStatus:
+      type: object
+      required:
+        - path
+        - status
+      properties:
+        path:
+          type: string
+          description: ファイルパス
+          example: reports/2025/12/2025-12-18.md
+        status:
+          type: string
+          description: ステータス（M:変更, A:追加, D:削除など）
+          example: M
+    UnpushedCommits:
+      type: object
+      required:
+        - count
+        - commits
+      properties:
+        count:
+          type: integer
+          description: 未プッシュコミット数
+          example: 1
+        commits:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnpushedCommit'
+    UnpushedCommit:
+      type: object
+      required:
+        - hash
+        - message
+        - date
+        - files
+      properties:
+        hash:
+          type: string
+          description: コミットハッシュ（短縮形）
+          example: a1b2c3d
+        message:
+          type: string
+          description: コミットメッセージ
+          example: '日報更新: 2025-12-18'
+        date:
+          type: string
+          description: コミット日時
+          example: '2025-12-18 17:30:00'
+        files:
+          type: array
+          description: コミットに含まれるファイル一覧
+          items:
+            type: string
+    CommitInfo:
+      type: object
+      required:
+        - hash
+        - message
+        - date
+      properties:
+        hash:
+          type: string
+          description: コミットハッシュ
+          example: a1b2c3d
+        message:
+          type: string
+          description: コミットメッセージ
+          example: '日報更新: 2025-12-18'
+        date:
+          type: string
+          description: コミット日時
+          example: '2025-12-18 17:30:00'

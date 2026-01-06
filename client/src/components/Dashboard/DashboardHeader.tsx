@@ -15,8 +15,8 @@ import {
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { useDashboard } from './DashboardContext';
-import { gitApi } from '../../api/client';
-import type { ExtendedGitStatus } from '../../types';
+import { gitApi } from '../../mdjournal/api.generated';
+import type { ExtendedGitStatus } from '@mdjournal/contract/schemas/types.js';
 import './DashboardHeader.css';
 
 const { TextArea } = Input;
@@ -96,7 +96,7 @@ export const DashboardHeader = ({
       
       // Git状態を取得
       setGitStatusLoading(true);
-      gitApi.getStatus()
+      gitApi.getStatus({})
         .then(status => setGitStatus(status))
         .catch(err => console.error('Git状態の取得に失敗:', err))
         .finally(() => setGitStatusLoading(false));

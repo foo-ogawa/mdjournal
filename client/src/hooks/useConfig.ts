@@ -3,7 +3,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { configApi } from '../api/client';
+import { configApi } from '../mdjournal/api.generated';
 import type { Config, Project, Routines, RoutineItem } from '../types';
 import dayjs from 'dayjs';
 
@@ -41,7 +41,7 @@ export function useConfig(): UseConfigReturn {
     setError(null);
     
     try {
-      const data = await configApi.get();
+      const data = await configApi.getConfig({});
       setConfig(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : '設定の読み込みに失敗しました');
@@ -55,7 +55,7 @@ export function useConfig(): UseConfigReturn {
     setError(null);
     
     try {
-      const data = await configApi.update(updates);
+      const data = await configApi.updateConfig({ data: updates });
       setConfig(data);
       return true;
     } catch (err) {
@@ -66,7 +66,7 @@ export function useConfig(): UseConfigReturn {
 
   // プロジェクト取得
   const getProject = useCallback((code: string) => {
-    return config?.projects.find(p => p.code === code);
+    return config?.projects?.find(p => p.code === code);
   }, [config]);
 
   // プロジェクトカラー取得
@@ -81,7 +81,7 @@ export function useConfig(): UseConfigReturn {
 
   // アクティブプロジェクト取得
   const getActiveProjects = useCallback(() => {
-    return config?.projects.filter(p => p.active) || [];
+    return config?.projects?.filter(p => p.active) || [];
   }, [config]);
 
   // 曜日のルーチン取得

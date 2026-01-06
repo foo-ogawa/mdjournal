@@ -3,8 +3,9 @@
  */
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { reportApi } from '../api/client';
-import type { DailyReport, ReportStats, ScheduleItem, TodoItem } from '../types';
+import { reportApi, ApiError } from '../mdjournal/api.generated';
+import type { ReportStats } from '@mdjournal/contract/schemas/types.js';
+import type { DailyReport, ScheduleItem, TodoItem } from '../types';
 import { generateTodoLines } from '../models/markdown/todo';
 import { generateScheduleLines } from '../models/markdown/schedule';
 import dayjs from 'dayjs';
@@ -65,7 +66,17 @@ export function useReport(initialDate?: string): UseReportReturn {
     setCurrentDate(date);
     
     try {
-      const response = await reportApi.get(date);
+      let response;
+      try {
+        response = await reportApi.getReport({ date });
+      } catch (e) {
+        // 404 means no report exists
+        if (e instanceof ApiError && e.status === 404) {
+          response = null;
+        } else {
+          throw e;
+        }
+      }
       if (response) {
         setStats(response.stats);
         // Markdownからパースした日報オブジェクト
@@ -77,7 +88,7 @@ export function useReport(initialDate?: string): UseReportReturn {
         // 前日の日報から未完了TODOを取得
         const previousDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
         try {
-          const previousReport = await reportApi.get(previousDate);
+          const previousReport = await reportApi.getReport({ date: previousDate });
           if (previousReport) {
             const previousReportData = parseReportFromMarkdown(previousDate, previousReport.content);
             // 未完了のTODOのみを持ち越し（completed以外）
@@ -114,10 +125,13 @@ export function useReport(initialDate?: string): UseReportReturn {
     
     try {
       const content = generateMarkdownFromReport(report);
-      const response = await reportApi.save(currentDate, {
-        content,
-        git: options?.git,
-        slack: options?.slack,
+      const response = await reportApi.saveReport({
+        date: currentDate,
+        data: {
+          content,
+          git: options?.git,
+          slack: options?.slack,
+        },
       });
       
       if (response.saved) {
@@ -125,7 +139,7 @@ export function useReport(initialDate?: string): UseReportReturn {
         setIsDirty(false);
         
         // 保存後、サーバーから最新データを再取得（frontmatter等が更新されている可能性）
-        const latestResponse = await reportApi.get(currentDate);
+        const latestResponse = await reportApi.getReport({ date: currentDate });
         if (latestResponse) {
           setReport(parseReportFromMarkdown(currentDate, latestResponse.content));
           setStats(latestResponse.stats);
@@ -145,13 +159,11 @@ export function useReport(initialDate?: string): UseReportReturn {
   // 日報削除
   const deleteReport = useCallback(async () => {
     try {
-      const result = await reportApi.delete(currentDate);
-      if (result) {
-        setReport(null);
-        setStats(null);
-        setIsDirty(false);
-      }
-      return result;
+      await reportApi.deleteReport({ date: currentDate });
+      setReport(null);
+      setStats(null);
+      setIsDirty(false);
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : '削除に失敗しました');
       return false;

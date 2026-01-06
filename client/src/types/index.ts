@@ -2,21 +2,57 @@
 // OpenAPI仕様に準拠
 
 // ===========================================
-// プロジェクト
+// OpenAPI生成型の再エクスポート
+// ===========================================
+export type {
+  // 設定関連
+  Config,
+  Project,
+  TimelineConfig,
+  SlackConfig,
+  Routines,
+  WeeklyRoutine,
+  MonthlyRoutine,
+  QuarterlyRoutine,
+  YearlyRoutine,
+  RoutineItem,
+  MonthlyRoutineItem,
+  // カレンダー関連
+  CalendarData,
+  DayStats,
+  CalendarSummary,
+  YearMonth,
+  YearMonthsResponse,
+  // 日報関連
+  ReportStats,
+  ReportResponse,
+  ReportSaveRequest,
+  ReportSaveResponse,
+  GitOptions,
+  SlackOptions,
+  GitResult,
+  SlackResult,
+  // Git関連
+  ExtendedGitStatus,
+  UncommittedChanges,
+  UnpushedCommits,
+  UnpushedCommit,
+  CommitInfo,
+  FileStatus,
+  // エラー
+  ProblemDetails,
+  ValidationError,
+  Error as ApiError,
+} from '@mdjournal/contract/schemas/types.js';
+
+// ===========================================
+// プロジェクトカテゴリ（型エイリアス）
 // ===========================================
 export type ProjectCategory = 'internal' | 'client' | 'personal';
 
-export interface Project {
-  code: string;
-  name: string;
-  color: string;
-  category: ProjectCategory;
-  client?: string;
-  active: boolean;
-}
-
 // ===========================================
 // スケジュールアイテム（PLAN/RESULT）
+// クライアント内部でのMarkdownパース結果を表現
 // ===========================================
 export interface ScheduleItemMetadata {
   priority?: 'high' | 'medium' | 'low';
@@ -38,6 +74,7 @@ export interface ScheduleItem {
 
 // ===========================================
 // TODO
+// クライアント内部でのMarkdownパース結果を表現
 // ===========================================
 export type TodoStatus = 'pending' | 'in_progress' | 'completed' | 'on_hold';
 
@@ -54,192 +91,21 @@ export interface TodoItem {
 }
 
 // ===========================================
-// 日報統計情報（frontmatter）
-// ===========================================
-export interface ReportStats {
-  planHours: number;
-  resultHours: number;
-  todoCount: number;
-  todoCompleted: number;
-  todoInProgress: number;
-  projectHours: Record<string, number>;
-  updatedAt: string;
-}
-
-// ===========================================
-// 日報
+// 日報（クライアント内部表現）
+// Markdownをパースした結果の構造化データ
 // ===========================================
 export interface DailyReport {
   date: string;
-  author: string;
+  author?: string;
   plan: ScheduleItem[];
   result: ScheduleItem[];
   todos: TodoItem[];
   notes?: string;
-  stats?: ReportStats;
+  stats?: import('@mdjournal/contract/schemas/types.js').ReportStats;
 }
 
 // ===========================================
-// ルーチン
-// ===========================================
-export interface RoutineItem {
-  id?: string;
-  time?: string;
-  project: string;
-  task: string;
-  duration?: number;
-  category?: 'plan' | 'todo';  // タスク形式(plan)かTODO形式(todo)か
-}
-
-export interface MonthlyRoutineItem {
-  project: string;
-  task: string;
-  category?: 'plan' | 'todo';
-}
-
-export interface WeeklyRoutine {
-  monday?: RoutineItem[];
-  tuesday?: RoutineItem[];
-  wednesday?: RoutineItem[];
-  thursday?: RoutineItem[];
-  friday?: RoutineItem[];
-  saturday?: RoutineItem[];
-  sunday?: RoutineItem[];
-}
-
-export interface MonthlyRoutine {
-  start_of_month?: MonthlyRoutineItem[];
-  end_of_month?: MonthlyRoutineItem[];
-  schedule?: RoutineItem[];  // 時間ベースのタスク
-}
-
-export interface QuarterlyRoutine {
-  months: number[];
-  tasks: MonthlyRoutineItem[];
-  schedule?: RoutineItem[];  // 時間ベースのタスク
-}
-
-export interface YearlyRoutine {
-  month: number;
-  day: number;
-  project: string;
-  task: string;
-  time?: string;  // 時間ベースのタスクの場合
-}
-
-export interface Routines {
-  weekly?: WeeklyRoutine;
-  monthly?: MonthlyRoutine;
-  quarterly?: QuarterlyRoutine[];
-  yearly?: YearlyRoutine[];
-  adhoc?: RoutineItem[];
-}
-
-// ===========================================
-// 設定
-// ===========================================
-export interface TimelineConfig {
-  hourHeight: number;       // 1時間あたりの高さ（ピクセル）
-  maxHours: number;         // 最大表示時間（36時間など）
-  defaultStartHour: number; // デフォルト開始時刻（スロットが空の場合の表示開始時間）
-  defaultEndHour: number;   // デフォルト終了時刻（スロットが空の場合の表示終了時間）
-  snapMinutes: number;      // ドラッグ時のスナップ単位（分）
-}
-
-export interface SlackConfig {
-  enabled: boolean;
-}
-
-export interface Config {
-  projects: Project[];
-  routines: Routines;
-  timeline?: TimelineConfig;
-  slack?: SlackConfig;
-}
-
-// ===========================================
-// カレンダー
-// ===========================================
-export interface DayStats {
-  date: string;
-  hasReport: boolean;
-  planHours?: number;
-  resultHours?: number;
-  todoCount?: number;
-  todoCompleted?: number;
-}
-
-export interface CalendarSummary {
-  totalPlanHours: number;
-  totalResultHours: number;
-  workDays: number;
-  todoCompleted: number;
-  projectHours?: Record<string, number>;
-}
-
-export interface CalendarData {
-  year: number;
-  month: number;
-  days: DayStats[];
-  summary?: CalendarSummary;
-}
-
-// ===========================================
-// Googleカレンダー
-// ===========================================
-export interface GoogleCalendarEvent {
-  id: string;
-  summary: string;
-  description?: string;
-  start: string;
-  end: string;
-  meetingUrl?: string;
-}
-
-// ===========================================
-// APIリクエスト/レスポンス
-// ===========================================
-export interface ReportResponse {
-  date: string;
-  content: string;
-  stats: ReportStats;
-}
-
-export interface ReportSaveRequest {
-  content: string;
-  git?: {
-    commit?: boolean;
-    push?: boolean;
-    message?: string;
-  };
-  slack?: {
-    post?: boolean;
-  };
-}
-
-export interface ReportSaveResponse {
-  date: string;
-  saved: boolean;
-  stats: ReportStats;
-  git?: {
-    committed?: boolean;
-    pushed?: boolean;
-    commitHash?: string;
-    error?: string;
-  };
-  slack?: {
-    posted?: boolean;
-    error?: string;
-  };
-}
-
-export interface ApiError {
-  code: string;
-  message: string;
-}
-
-// ===========================================
-// Git状態
+// Git状態（簡易版 - 旧API互換）
 // ===========================================
 export interface GitStatus {
   branch: string;
@@ -253,31 +119,20 @@ export interface GitStatus {
   lastPush?: string;
 }
 
-// 拡張Git状態（未コミット・未push情報付き）
-export interface ExtendedGitStatus {
-  branch: string;
-  uncommitted: {
-    count: number;
-    files: { path: string; status: string }[];
-  };
-  unpushed: {
-    count: number;
-    commits: {
-      hash: string;
-      message: string;
-      date: string;
-      files: string[];
-    }[];
-  };
-  lastCommit?: {
-    hash: string;
-    message: string;
-    date: string;
-  };
+// ===========================================
+// Googleカレンダー（未使用、将来のため保持）
+// ===========================================
+export interface GoogleCalendarEvent {
+  id: string;
+  summary: string;
+  description?: string;
+  start: string;
+  end: string;
+  meetingUrl?: string;
 }
 
 // ===========================================
-// 連携状態
+// 連携状態（未使用、将来のため保持）
 // ===========================================
 export interface IntegrationStatus {
   slack: { connected: boolean; lastSync?: string };
