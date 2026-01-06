@@ -1,0 +1,33 @@
+{
+  "name": "@mdjournal/contract",
+  "version": "1.0.0",
+  "description": "mdJournal API Contract - Auto-generated types and interfaces from OpenAPI",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./schemas": "./schemas/index.ts",
+    "./schemas/types": "./schemas/types.ts",
+    "./schemas/types.js": "./schemas/types.ts",
+    "./domains": "./domains/index.ts",
+    "./domains/*": "./domains/*.ts",
+    "./errors": "./errors/index.ts"
+  },
+  "files": [
+    "*.ts",
+    "schemas/",
+    "domains/",
+    "errors/",
+    "docs/"
+  ],
+  "keywords": [
+    "mdjournal",
+    "contract",
+    "api",
+    "types"
+  ],
+  "license": "MIT",
+  "private": true
+}
+

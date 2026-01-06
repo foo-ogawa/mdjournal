@@ -1,6 +1,39 @@
-
+# macOS
 .DS_Store
+
+# Dependencies
 node_modules
 
+# Build outputs
+dist
+server/dist
+client/dist
+
+# Test coverage
+coverage
+server/coverage
+client/coverage
+
+# Generated JS files in contract package (keep only .ts files)
+packages/contract/**/*.js
+packages/contract/**/*.js.map
+packages/contract/**/*.d.ts
+packages/contract/**/*.d.ts.map
+!packages/contract/**/*.ts
+
+# IDE
+.idea
+*.swp
+*.swo
+
+# Logs
 chat_log
+*.log
+
+# Environment
+.env
+.env.local
+
+.cursorrules
+
 

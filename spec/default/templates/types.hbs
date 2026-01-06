@@ -1,0 +1,45 @@
+/**
+ * {{info.title}} - Type Definitions
+ * 
+ * ⚠️ AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY
+ * Generated from OpenAPI specification by micro-contracts
+ * 
+ * @generated
+ */
+
+// ========================================
+// API Types from OpenAPI Schema
+// ========================================
+
+{{#each schemas}}
+{{#if description}}
+/**
+ * {{description}}
+ */
+{{/if}}
+{{#if isEnum}}
+export type {{@key}} = {{#each enumValues}}'{{this}}'{{#unless @last}} | {{/unless}}{{/each}};
+{{else if isObject}}
+export interface {{@key}} {
+{{#each properties}}
+  {{#if description}}
+  /** {{description}} */
+  {{/if}}
+  {{name}}{{#unless required}}?{{/unless}}: {{type}};
+{{/each}}
+}
+{{else}}
+export type {{@key}} = {{type}};
+{{/if}}
+
+{{/each}}
+
+// ========================================
+// API Error
+// ========================================
+
+export interface ApiError {
+  code: string;
+  message: string;
+}
+

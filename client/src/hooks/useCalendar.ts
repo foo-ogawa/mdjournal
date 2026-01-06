@@ -3,8 +3,8 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { calendarApi } from '../api/client';
-import type { CalendarData, DayStats, CalendarSummary } from '../types';
+import { calendarApi } from '../mdjournal/api.generated';
+import type { CalendarData, DayStats, CalendarSummary } from '@mdjournal/contract/schemas/types.js';
 import dayjs from 'dayjs';
 
 interface YearMonth {
@@ -55,7 +55,7 @@ export function useCalendar(initialYear?: number, initialMonth?: number): UseCal
     setError(null);
     
     try {
-      const data = await calendarApi.get(y, m);
+      const data = await calendarApi.getCalendarData({ year: y, month: m });
       setCalendarData(data);
       setYear(y);
       setMonth(m);
@@ -69,8 +69,8 @@ export function useCalendar(initialYear?: number, initialMonth?: number): UseCal
   // 利用可能な年月リストを読み込み
   const loadAvailableMonths = useCallback(async () => {
     try {
-      const yearMonths = await calendarApi.getAvailableMonths();
-      setAvailableYearMonths(yearMonths);
+      const response = await calendarApi.getAvailableYearMonths({});
+      setAvailableYearMonths(response.yearMonths);
     } catch (err) {
       console.error('Failed to load available months:', err);
     }

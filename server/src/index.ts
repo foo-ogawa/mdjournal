@@ -10,13 +10,20 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
-import reportsRouter from './routes/reports.js';
-import calendarRouter from './routes/calendar.js';
-import configRouter from './routes/config.js';
-import gcalRouter from './routes/gcal.js';
-import gitRouter from './routes/git.js';
+// ========================================
+// micro-contracts: 生成されたルートを使用
+// ========================================
+import { createMdjournalRouter } from './mdjournal/index.js';
+
+// 既存のルート（後方互換性のために保持、将来削除予定）
+// import reportsRouter from './routes/reports.js';
+// import calendarRouter from './routes/calendar.js';
+// import configRouter from './routes/config.js';
+// import gcalRouter from './routes/gcal.js';
+// import gitRouter from './routes/git.js';
+
 import { initConfigPaths, getConfigPaths } from './utils/fileManager.js';
-import type { ApiError } from './types/index.js';
+import type { Error as ApiError } from '@mdjournal/contract/schemas/types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,12 +64,18 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
-// APIルーター
-app.use('/api/reports', reportsRouter);
-app.use('/api/calendar', calendarRouter);
-app.use('/api/config', configRouter);
-app.use('/api/gcal', gcalRouter);
-app.use('/api/git', gitRouter);
+// ========================================
+// APIルーター (micro-contracts 生成コード使用)
+// ========================================
+const mdjournalRouter = createMdjournalRouter();
+app.use('/api', mdjournalRouter);
+
+// 既存のルート（後方互換性のために保持、将来削除予定）
+// app.use('/api/reports', reportsRouter);
+// app.use('/api/calendar', calendarRouter);
+// app.use('/api/config', configRouter);
+// app.use('/api/gcal', gcalRouter);
+// app.use('/api/git', gitRouter);
 
 // 404ハンドラー (API)
 app.use('/api/*', (_req: Request, res: Response) => {
