@@ -37,6 +37,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Guardrails - Code Quality Check
+        run: npm run check:gate4
+
 
 
 
