@@ -1,0 +1,22 @@
+# Redocly CLI configuration for mdJournal
+# This project is a local-only dashboard, so some security rules are relaxed
+
+extends:
+  - recommended
+
+rules:
+  # Disable security rule - this is a local-only API without authentication
+  security-defined: off
+  
+  # Disable server URL check - localhost is expected for development
+  no-server-example.com: off
+  
+  # Make 4xx response optional for simple GET endpoints
+  operation-4xx-response: warn
+  
+  # License URL is optional
+  info-license-strict: off
+  
+  # Allow unused components (parameters may be documented for reference)
+  no-unused-components: warn
+
