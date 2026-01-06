@@ -102,11 +102,10 @@ checks:
   # ==========================================
   # Gate 2: OpenAPI Contract Validation
   # ==========================================
-  # Schema Validity check (optional - requires spectral)
+  # Schema Validity check
   spec-lint:
     command: "npx @redocly/cli lint spec/mdjournal/openapi/mdjournal.yaml"
     gate: 2
-    enabled: false  # Enable when @redocly/cli is installed
 
   # ==========================================
   # Gate 3: Generated Artifact Integrity
