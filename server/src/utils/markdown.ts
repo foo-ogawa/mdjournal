@@ -257,8 +257,8 @@ function calculateDurationsWithEndTime(items: ScheduleItem[], endTime: string): 
       // 最後のアイテムは終了時刻を使用
       endMinutes = timeToMinutes(endTime);
     } else {
-      // 終了時刻がない場合はスキップ
-      continue;
+      // 終了時刻がない場合は1時間継続したものとして計算
+      endMinutes = startMinutes + 60;
     }
     
     items[i].duration = endMinutes - startMinutes;
