@@ -253,11 +253,11 @@ function calculateDurationsWithEndTime(items: ScheduleItem[], endTime: string): 
     if (i < items.length - 1) {
       // 次のアイテムの開始時刻を終了時刻とする
       endMinutes = timeToMinutes(items[i + 1].time);
-    } else if (endTime) {
-      // 最後のアイテムは終了時刻を使用
+    } else if (endTime && timeToMinutes(endTime) > startMinutes) {
+      // 最後のアイテムは終了時刻を使用（ただし開始時刻より後の場合のみ）
       endMinutes = timeToMinutes(endTime);
     } else {
-      // 終了時刻がない場合は1時間継続したものとして計算
+      // 終了時刻がないか、開始時刻より前の場合は1時間継続したものとして計算
       endMinutes = startMinutes + 60;
     }
     
