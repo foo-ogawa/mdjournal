@@ -1,5 +1,5 @@
 /**
- * Calendar Domain API Interface
+ * Calendar Service API Interface
  * Auto-generated from OpenAPI specification
  * DO NOT EDIT MANUALLY
  */
@@ -11,7 +11,7 @@ import type {
   YearMonthsResponse,
 } from '../schemas/types.js';
 
-export interface CalendarApi {
+export interface CalendarServiceApi {
   /**
    * GET /calendar
    * @internal Not included in public contract

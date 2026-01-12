@@ -44,7 +44,7 @@ paths:
         レスポンスにはMarkdown本文と、frontmatterから抽出した統計情報が含まれます。
         日報が存在しない場合は404を返します。
       operationId: getReport
-      x-micro-contracts-domain: Report
+      x-micro-contracts-service: Report
       x-micro-contracts-method: getReport
       parameters:
         - name: date
@@ -84,7 +84,7 @@ paths:
         
         オプションでGit commit/push、Slack投稿を同時に実行できます。
       operationId: saveReport
-      x-micro-contracts-domain: Report
+      x-micro-contracts-service: Report
       x-micro-contracts-method: saveReport
       parameters:
         - name: date
@@ -121,7 +121,7 @@ paths:
       summary: 日報削除
       description: 指定した日付の日報を削除します。
       operationId: deleteReport
-      x-micro-contracts-domain: Report
+      x-micro-contracts-service: Report
       x-micro-contracts-method: deleteReport
       parameters:
         - name: date
@@ -156,7 +156,7 @@ paths:
         **高速化**: 各日報ファイルのfrontmatterから統計情報を読み取るため、
         Markdown本文のパースは不要で高速に集計できます。
       operationId: getCalendarData
-      x-micro-contracts-domain: Calendar
+      x-micro-contracts-service: Calendar
       x-micro-contracts-method: getCalendarData
       parameters:
         - name: year
@@ -200,7 +200,7 @@ paths:
         日報ファイルが存在する年月のリストを取得します。
         カレンダービューの年月プルダウンで使用します。
       operationId: getAvailableYearMonths
-      x-micro-contracts-domain: Calendar
+      x-micro-contracts-service: Calendar
       x-micro-contracts-method: getAvailableYearMonths
       responses:
         "200":
@@ -221,7 +221,7 @@ paths:
       description: |
         プロジェクトマスタとルーチン定義を取得します。
       operationId: getConfig
-      x-micro-contracts-domain: Config
+      x-micro-contracts-service: Config
       x-micro-contracts-method: getConfig
       responses:
         "200":
@@ -238,7 +238,7 @@ paths:
       description: |
         設定を更新します。部分更新が可能で、指定されたキーのみ更新されます。
       operationId: updateConfig
-      x-micro-contracts-domain: Config
+      x-micro-contracts-service: Config
       x-micro-contracts-method: updateConfig
       requestBody:
         required: true
@@ -270,7 +270,7 @@ paths:
         `data/routines.md` が存在する場合はそのファイルの内容を返し、
         存在しない場合は `config/routines.yaml` からMarkdown形式に変換して返します。
       operationId: getRoutinesMarkdown
-      x-micro-contracts-domain: Config
+      x-micro-contracts-service: Config
       x-micro-contracts-method: getRoutinesMarkdown
       responses:
         "200":
@@ -288,7 +288,7 @@ paths:
         Markdown形式のルーチン設定を `data/routines.md` に保存します。
         保存後は、YAML設定ファイルよりもこのMarkdownファイルが優先されます。
       operationId: saveRoutinesMarkdown
-      x-micro-contracts-domain: Config
+      x-micro-contracts-service: Config
       x-micro-contracts-method: saveRoutinesMarkdown
       requestBody:
         required: true
@@ -322,7 +322,7 @@ paths:
         リポジトリのGit状態（未コミットファイル、未プッシュコミット）を取得します。
         保存ダイアログでコミット・プッシュ対象を表示するために使用します。
       operationId: getGitStatus
-      x-micro-contracts-domain: Git
+      x-micro-contracts-service: Git
       x-micro-contracts-method: getStatus
       responses:
         "200":

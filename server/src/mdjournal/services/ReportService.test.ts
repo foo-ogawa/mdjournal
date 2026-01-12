@@ -1,8 +1,8 @@
 /**
- * ReportDomain tests
+ * ReportService tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ReportDomain } from './ReportDomain.js';
+import { ReportService } from './ReportService.js';
 import { NotFoundError, ValidationError } from './errors.js';
 
 // Mock dependencies
@@ -47,11 +47,11 @@ import { readReport, writeReport, deleteReport } from '../../utils/fileManager.j
 import { gitCommit, gitPush } from '../../utils/git.js';
 import { postToSlack } from '../../utils/slack.js';
 
-describe('ReportDomain', () => {
-  let reportDomain: ReportDomain;
+describe('ReportService', () => {
+  let reportService: ReportService;
 
   beforeEach(() => {
-    reportDomain = new ReportDomain();
+    reportService = new ReportService();
     vi.clearAllMocks();
   });
 
@@ -76,7 +76,7 @@ describe('ReportDomain', () => {
         },
       });
 
-      const result = await reportDomain.getReport({ date: '2025-01-06' });
+      const result = await reportService.getReport({ date: '2025-01-06' });
 
       expect(result.date).toBe('2025-01-06');
       expect(result.content).toBe(mockContent);
@@ -87,15 +87,15 @@ describe('ReportDomain', () => {
     it('should throw NotFoundError when report not found', async () => {
       vi.mocked(readReport).mockResolvedValue(null);
 
-      await expect(reportDomain.getReport({ date: '2025-01-06' }))
+      await expect(reportService.getReport({ date: '2025-01-06' }))
         .rejects.toThrow(NotFoundError);
     });
 
     it('should throw ValidationError for invalid date format', async () => {
-      await expect(reportDomain.getReport({ date: '2025/01/06' }))
+      await expect(reportService.getReport({ date: '2025/01/06' }))
         .rejects.toThrow(ValidationError);
 
-      await expect(reportDomain.getReport({ date: 'invalid' }))
+      await expect(reportService.getReport({ date: 'invalid' }))
         .rejects.toThrow(ValidationError);
     });
 
@@ -105,7 +105,7 @@ describe('ReportDomain', () => {
         stats: null,
       });
 
-      const result = await reportDomain.getReport({ date: '2025-01-06' });
+      const result = await reportService.getReport({ date: '2025-01-06' });
 
       expect(result.stats).toBeDefined();
     });
@@ -115,7 +115,7 @@ describe('ReportDomain', () => {
     it('should save report and return result', async () => {
       vi.mocked(writeReport).mockResolvedValue(undefined);
 
-      const result = await reportDomain.saveReport({
+      const result = await reportService.saveReport({
         date: '2025-01-06',
         data: {
           content: '# Test content',
@@ -129,14 +129,14 @@ describe('ReportDomain', () => {
     });
 
     it('should throw ValidationError for invalid date', async () => {
-      await expect(reportDomain.saveReport({
+      await expect(reportService.saveReport({
         date: 'invalid',
         data: { content: 'test' },
       })).rejects.toThrow(ValidationError);
     });
 
     it('should throw ValidationError when content is missing', async () => {
-      await expect(reportDomain.saveReport({
+      await expect(reportService.saveReport({
         date: '2025-01-06',
         data: { content: '' },
       })).rejects.toThrow(ValidationError);
@@ -146,7 +146,7 @@ describe('ReportDomain', () => {
       vi.mocked(writeReport).mockResolvedValue(undefined);
       vi.mocked(gitCommit).mockResolvedValue({ success: true, commitHash: 'abc123' });
 
-      const result = await reportDomain.saveReport({
+      const result = await reportService.saveReport({
         date: '2025-01-06',
         data: {
           content: '# Test content',
@@ -164,7 +164,7 @@ describe('ReportDomain', () => {
       vi.mocked(gitCommit).mockResolvedValue({ success: true, commitHash: 'abc123' });
       vi.mocked(gitPush).mockResolvedValue({ success: true });
 
-      const result = await reportDomain.saveReport({
+      const result = await reportService.saveReport({
         date: '2025-01-06',
         data: {
           content: '# Test content',
@@ -180,7 +180,7 @@ describe('ReportDomain', () => {
       vi.mocked(writeReport).mockResolvedValue(undefined);
       vi.mocked(gitCommit).mockResolvedValue({ success: false, error: 'Commit failed' });
 
-      const result = await reportDomain.saveReport({
+      const result = await reportService.saveReport({
         date: '2025-01-06',
         data: {
           content: '# Test content',
@@ -196,7 +196,7 @@ describe('ReportDomain', () => {
       vi.mocked(writeReport).mockResolvedValue(undefined);
       vi.mocked(postToSlack).mockResolvedValue({ success: true });
 
-      const result = await reportDomain.saveReport({
+      const result = await reportService.saveReport({
         date: '2025-01-06',
         data: {
           content: '# Test content',
@@ -212,7 +212,7 @@ describe('ReportDomain', () => {
       vi.mocked(writeReport).mockResolvedValue(undefined);
       vi.mocked(postToSlack).mockResolvedValue({ success: false, error: 'Slack error' });
 
-      const result = await reportDomain.saveReport({
+      const result = await reportService.saveReport({
         date: '2025-01-06',
         data: {
           content: '# Test content',
@@ -229,19 +229,19 @@ describe('ReportDomain', () => {
     it('should delete report successfully', async () => {
       vi.mocked(deleteReport).mockResolvedValue(true);
 
-      await expect(reportDomain.deleteReport({ date: '2025-01-06' }))
+      await expect(reportService.deleteReport({ date: '2025-01-06' }))
         .resolves.toBeUndefined();
     });
 
     it('should throw NotFoundError when report not found', async () => {
       vi.mocked(deleteReport).mockResolvedValue(false);
 
-      await expect(reportDomain.deleteReport({ date: '2025-01-06' }))
+      await expect(reportService.deleteReport({ date: '2025-01-06' }))
         .rejects.toThrow(NotFoundError);
     });
 
     it('should throw ValidationError for invalid date', async () => {
-      await expect(reportDomain.deleteReport({ date: 'invalid' }))
+      await expect(reportService.deleteReport({ date: 'invalid' }))
         .rejects.toThrow(ValidationError);
     });
   });

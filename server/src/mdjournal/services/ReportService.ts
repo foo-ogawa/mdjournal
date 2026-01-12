@@ -1,11 +1,11 @@
 /**
- * Report Domain Implementation
+ * Report Service Implementation
  * 
  * Implements ReportApi interface from the contract package.
  * Contains HTTP-agnostic business logic for report operations.
  */
 
-import type { ReportApi } from '@mdjournal/contract/domains/ReportApi.js';
+import type { ReportServiceApi } from '@mdjournal/contract/services/ReportServiceApi.js';
 import type {
   ReportResponse,
   ReportSaveResponse,
@@ -27,7 +27,7 @@ function isValidDate(date: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(date);
 }
 
-export class ReportDomain implements ReportApi {
+export class ReportService implements ReportServiceApi {
   /**
    * 日報取得
    */

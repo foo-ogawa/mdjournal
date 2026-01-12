@@ -1,34 +1,18 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-01-06T12:50:15.759Z",
-  "generatorVersion": "1.0.0",
+  "generatorVersion": "0.10.0",
   "files": {
     "contract/mdjournal/docs/api-reference.html": {
-      "sha256": "c2df159a3f085b646f9054204c2ac84dfd6af0a564bd82a1cc48a23cefc2d98c"
+      "sha256": "aa74388f4b6a302eaa29a032c00a0c91af6263c24ba27fa7b1fa16af1410fd05"
     },
     "contract/mdjournal/docs/openapi.generated.yaml": {
-      "sha256": "a255140b1147b5970b9a35a95198b2aa0de662860ccb67a35a74967f6f81478f"
-    },
-    "contract/mdjournal/domains/CalendarApi.ts": {
-      "sha256": "c5f61a1a7dbbe926c7fa96b5397a8d4a401ff0f9b61be9ac4197e934caae4a29"
-    },
-    "contract/mdjournal/domains/ConfigApi.ts": {
-      "sha256": "cd6e7db9e099d1cd12a535f50c8ae26bec7f3a96841445749f8a62854e3a71c4"
-    },
-    "contract/mdjournal/domains/GitApi.ts": {
-      "sha256": "456a0e3dfa91b92e754e3107065441ecd92b025f55d8f1025e8048813adb01eb"
-    },
-    "contract/mdjournal/domains/ReportApi.ts": {
-      "sha256": "0849cc64ef31c4aaf3ecdca65df66fe20d0cdffad48ca8800f58e09557065da0"
-    },
-    "contract/mdjournal/domains/index.ts": {
-      "sha256": "0c1dfe9d8f741a27fc7fc7c37a718d471f565d642f19c38c6882114db1e25f32"
+      "sha256": "cd78b81d32dce37462a58952134161520029b77f8b9d3a2e4ea39b061d800467"
     },
     "contract/mdjournal/errors/index.ts": {
       "sha256": "e448e50128b60b19eebfcee30127a426b69d0919b8219bfd6d38ff3628a62ac7"
     },
     "contract/mdjournal/index.ts": {
-      "sha256": "10fe15940bbbd57ec78c21c14fad7fb3343782b351310f29180931141666b7dd"
+      "sha256": "eda35eb2b61008690e406e9b1493da1c8d01858ac0c0d1d3589b827606086a70"
     },
     "contract/mdjournal/package.json": {
       "sha256": "dae4ec707602bcc34e5dd6492dc7455a1f74785235b2a453817f01114ebc73f0"
@@ -42,8 +26,24 @@
     "contract/mdjournal/schemas/validators.ts": {
       "sha256": "f20553d04c67728283472356b251036a8dbfaf3053b327be46e1715fca6bf11e"
     },
+    "contract/mdjournal/services/CalendarServiceApi.ts": {
+      "sha256": "1edeb5ca55e51ae1b9d7dbf043043b22e1d025137d2278afc243b5c96d9b10cc"
+    },
+    "contract/mdjournal/services/ConfigServiceApi.ts": {
+      "sha256": "a2dacecce31c21acdf8e6eced6bef7ee82a5124ad0d5411bfdd2390fd67685ba"
+    },
+    "contract/mdjournal/services/GitServiceApi.ts": {
+      "sha256": "b73fcfe963a5d9c2aa6159be040cc02067ae87cca1926566ca6a32cc0e71a3ea"
+    },
+    "contract/mdjournal/services/ReportServiceApi.ts": {
+      "sha256": "b0738fe6ebc8d534219a5960e7c8baa454d311f78a3138f6d8b5c42081c328a3"
+    },
+    "contract/mdjournal/services/index.ts": {
+      "sha256": "bd06d99522d5ab656abbe02d0e664fbdd549f481da993815e135e37e69470c39"
+    },
     "contract/mdjournal/tsconfig.json": {
       "sha256": "3ba12d031013d35707a7591d36d4ed7dd89c833cdb1dc779e1f0cf426c5613be"
     }
-  }
+  },
+  "updatedAt": "2026-01-12T13:06:25.912Z"
 }

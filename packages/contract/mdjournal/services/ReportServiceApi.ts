@@ -1,5 +1,5 @@
 /**
- * Report Domain API Interface
+ * Report Service API Interface
  * Auto-generated from OpenAPI specification
  * DO NOT EDIT MANUALLY
  */
@@ -12,7 +12,7 @@ import type {
   Report_saveReportInput,
 } from '../schemas/types.js';
 
-export interface ReportApi {
+export interface ReportServiceApi {
   /**
    * GET /reports/{date}
    * @internal Not included in public contract

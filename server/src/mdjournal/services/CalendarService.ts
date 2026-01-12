@@ -1,11 +1,11 @@
 /**
- * Calendar Domain Implementation
+ * Calendar Service Implementation
  * 
  * Implements CalendarApi interface from the contract package.
  * Contains HTTP-agnostic business logic for calendar operations.
  */
 
-import type { CalendarApi } from '@mdjournal/contract/domains/CalendarApi.js';
+import type { CalendarServiceApi } from '@mdjournal/contract/services/CalendarServiceApi.js';
 import type {
   CalendarData,
   YearMonthsResponse,
@@ -25,7 +25,7 @@ function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
 }
 
-export class CalendarDomain implements CalendarApi {
+export class CalendarService implements CalendarServiceApi {
   /**
    * カレンダー用集計データ取得
    */

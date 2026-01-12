@@ -1,5 +1,5 @@
 /**
- * {{domainName}}Domain API Interface
+ * {{serviceName}}Service API Interface
  * 
  * ⚠️ AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY
  * Generated from OpenAPI specification by micro-contracts
@@ -22,7 +22,7 @@ import type {
  * Input type for {{name}}
  * {{description}}
  */
-export interface {{../domainName}}Domain_{{name}}Input {
+export interface {{../serviceName}}Service_{{name}}Input {
 {{#each params}}
   /** {{description}} */
   {{name}}{{#unless required}}?{{/unless}}: {{type}};
@@ -36,22 +36,22 @@ export interface {{../domainName}}Domain_{{name}}Input {
 {{/each}}
 
 // ========================================
-// Domain Interface
+// Service Interface
 // ========================================
 
 /**
- * {{domainName}} Domain API
+ * {{serviceName}} Service API
  * 
- * HTTP-agnostic interface for {{domainName}} operations.
+ * HTTP-agnostic interface for {{serviceName}} operations.
  * Implementations should handle business logic without HTTP concerns.
  */
-export interface {{domainName}}DomainApi {
+export interface {{serviceName}}ServiceApi {
 {{#each methods}}
   /**
    * {{summary}}
    * {{description}}
    */
-  {{name}}(input: {{../domainName}}Domain_{{name}}Input): Promise<{{returnType}}>;
+  {{name}}(input: {{../serviceName}}Service_{{name}}Input): Promise<{{returnType}}>;
 
 {{/each}}
 }

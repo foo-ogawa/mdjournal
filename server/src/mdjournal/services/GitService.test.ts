@@ -1,8 +1,8 @@
 /**
- * GitDomain tests
+ * GitService tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GitDomain } from './GitDomain.js';
+import { GitService } from './GitService.js';
 import type { ExtendedGitStatus } from '@mdjournal/contract/schemas/types.js';
 
 // Mock dependencies
@@ -12,11 +12,11 @@ vi.mock('../../utils/git.js', () => ({
 
 import { getExtendedGitStatus } from '../../utils/git.js';
 
-describe('GitDomain', () => {
-  let gitDomain: GitDomain;
+describe('GitService', () => {
+  let gitService: GitService;
 
   beforeEach(() => {
-    gitDomain = new GitDomain();
+    gitService = new GitService();
     vi.clearAllMocks();
   });
 
@@ -35,7 +35,7 @@ describe('GitDomain', () => {
       };
       vi.mocked(getExtendedGitStatus).mockResolvedValue(mockStatus);
 
-      const result = await gitDomain.getStatus({});
+      const result = await gitService.getStatus({});
 
       expect(getExtendedGitStatus).toHaveBeenCalled();
       expect(result.branch).toBe('main');
@@ -69,7 +69,7 @@ describe('GitDomain', () => {
       };
       vi.mocked(getExtendedGitStatus).mockResolvedValue(mockStatus);
 
-      const result = await gitDomain.getStatus({});
+      const result = await gitService.getStatus({});
 
       expect(result.branch).toBe('feature/test');
       expect(result.uncommitted.count).toBe(3);
@@ -92,7 +92,7 @@ describe('GitDomain', () => {
       };
       vi.mocked(getExtendedGitStatus).mockResolvedValue(mockStatus);
 
-      const result = await gitDomain.getStatus({});
+      const result = await gitService.getStatus({});
 
       expect(result.branch).toBe('main');
       expect(result.uncommitted.count).toBe(1);
@@ -118,7 +118,7 @@ describe('GitDomain', () => {
       };
       vi.mocked(getExtendedGitStatus).mockResolvedValue(mockStatus);
 
-      const result = await gitDomain.getStatus({});
+      const result = await gitService.getStatus({});
 
       expect(result.lastCommit).toBeDefined();
       expect(result.lastCommit?.hash).toBe('xyz789');

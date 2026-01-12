@@ -12,28 +12,28 @@ import type {
   {{this}},
 {{/each}}
 } from '{{contractPackage}}/schemas/types.js';
-{{#each domains}}
-import type { {{name}}Api } from '{{../contractPackage}}/domains/{{name}}Api.js';
+{{#each services}}
+import type { {{name}}ServiceApi } from '{{../contractPackage}}/services/{{name}}ServiceApi.js';
 {{/each}}
 
 // ========================================
-// Domain Dependencies
+// Service Dependencies
 // ========================================
 
-{{#each domains}}
-let {{key}}Domain: {{name}}Api;
+{{#each services}}
+let {{key}}Service: {{name}}ServiceApi;
 {{/each}}
 
 /**
- * Initialize domain instances
+ * Initialize service instances
  */
-export function initDomains(domains: {
-{{#each domains}}
-  {{key}}: {{name}}Api;
+export function initServices(services: {
+{{#each services}}
+  {{key}}: {{name}}ServiceApi;
 {{/each}}
 }): void {
-{{#each domains}}
-  {{key}}Domain = domains.{{key}};
+{{#each services}}
+  {{key}}Service = services.{{key}};
 {{/each}}
 }
 
@@ -66,7 +66,7 @@ function asyncHandler(
  */
 router.{{method}}('{{fastifyPath}}', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
 {{#each pathParams}}
     {{name}}: req.params.{{name}},
@@ -81,14 +81,14 @@ router.{{method}}('{{fastifyPath}}', asyncHandler(async (req: Request, res: Resp
 
   try {
 {{#if (eq responseType "void")}}
-    await {{domainKey}}Domain.{{domainMethod}}(input);
+    await {{serviceKey}}Service.{{serviceMethod}}(input);
     res.status(204).send();
 {{else}}
-    const result = await {{domainKey}}Domain.{{domainMethod}}(input);
+    const result = await {{serviceKey}}Service.{{serviceMethod}}(input);
     res.json(result);
 {{/if}}
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -114,9 +114,9 @@ export default router;
  * Register routes with Express app
  */
 export function registerRoutes(app: Router, basePath: string = '/api'): void {
-{{#each domains}}
-  if (!{{key}}Domain) {
-    throw new Error('{{name}}Domain is not initialized. Call initDomains() first.');
+{{#each services}}
+  if (!{{key}}Service) {
+    throw new Error('{{name}}Service is not initialized. Call initServices() first.');
   }
 {{/each}}
   app.use(basePath, router);

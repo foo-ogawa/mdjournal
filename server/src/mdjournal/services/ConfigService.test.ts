@@ -1,8 +1,8 @@
 /**
- * ConfigDomain tests
+ * ConfigService tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ConfigDomain } from './ConfigDomain.js';
+import { ConfigService } from './ConfigService.js';
 import { ValidationError } from './errors.js';
 import type { RoutinesMarkdownResponse } from '@mdjournal/contract/schemas/types.js';
 import type { Config } from '../../types/index.js';
@@ -22,11 +22,11 @@ import {
   writeRoutinesMarkdown,
 } from '../../utils/fileManager.js';
 
-describe('ConfigDomain', () => {
-  let configDomain: ConfigDomain;
+describe('ConfigService', () => {
+  let configService: ConfigService;
 
   beforeEach(() => {
-    configDomain = new ConfigDomain();
+    configService = new ConfigService();
     vi.clearAllMocks();
   });
 
@@ -51,7 +51,7 @@ describe('ConfigDomain', () => {
       };
       vi.mocked(readConfig).mockResolvedValue(mockConfig);
 
-      const result = await configDomain.getConfig({});
+      const result = await configService.getConfig({});
 
       expect(readConfig).toHaveBeenCalled();
       expect(result).toEqual(mockConfig);
@@ -69,7 +69,7 @@ describe('ConfigDomain', () => {
       vi.mocked(writeConfig).mockResolvedValue(undefined);
       vi.mocked(readConfig).mockResolvedValue(mockConfig);
 
-      const result = await configDomain.updateConfig({
+      const result = await configService.updateConfig({
         data: {
           projects: [
             { code: 'P99', name: 'テストプロジェクト', color: '#FF0000', category: 'internal', active: true },
@@ -82,7 +82,7 @@ describe('ConfigDomain', () => {
     });
 
     it('should throw ValidationError for project without required fields', async () => {
-      await expect(configDomain.updateConfig({
+      await expect(configService.updateConfig({
         data: {
           projects: [
             { code: 'P99', name: '', color: '#FF0000', category: 'internal', active: true },
@@ -92,7 +92,7 @@ describe('ConfigDomain', () => {
     });
 
     it('should throw ValidationError for invalid color format', async () => {
-      await expect(configDomain.updateConfig({
+      await expect(configService.updateConfig({
         data: {
           projects: [
             { code: 'P99', name: 'テスト', color: 'red', category: 'internal', active: true },
@@ -100,7 +100,7 @@ describe('ConfigDomain', () => {
         },
       })).rejects.toThrow(ValidationError);
 
-      await expect(configDomain.updateConfig({
+      await expect(configService.updateConfig({
         data: {
           projects: [
             { code: 'P99', name: 'テスト', color: '#FFF', category: 'internal', active: true },
@@ -110,7 +110,7 @@ describe('ConfigDomain', () => {
     });
 
     it('should throw ValidationError for invalid category', async () => {
-      await expect(configDomain.updateConfig({
+      await expect(configService.updateConfig({
         data: {
           projects: [
             { code: 'P99', name: 'テスト', color: '#FF0000', category: 'invalid' as 'internal', active: true },
@@ -126,7 +126,7 @@ describe('ConfigDomain', () => {
       const categories = ['internal', 'client', 'personal'] as const;
 
       for (const category of categories) {
-        await expect(configDomain.updateConfig({
+        await expect(configService.updateConfig({
           data: {
             projects: [
               { code: 'P99', name: 'テスト', color: '#FF0000', category, active: true },
@@ -145,7 +145,7 @@ describe('ConfigDomain', () => {
       vi.mocked(writeConfig).mockResolvedValue(undefined);
       vi.mocked(readConfig).mockResolvedValue(mockConfig);
 
-      const result = await configDomain.updateConfig({
+      const result = await configService.updateConfig({
         data: { timeline: { hourHeight: 80 } },
       });
 
@@ -162,7 +162,7 @@ describe('ConfigDomain', () => {
       };
       vi.mocked(readRoutinesMarkdown).mockResolvedValue(mockResponse);
 
-      const result = await configDomain.getRoutinesMarkdown({});
+      const result = await configService.getRoutinesMarkdown({});
 
       expect(readRoutinesMarkdown).toHaveBeenCalled();
       expect(result).toEqual(mockResponse);
@@ -175,7 +175,7 @@ describe('ConfigDomain', () => {
       };
       vi.mocked(readRoutinesMarkdown).mockResolvedValue(mockResponse);
 
-      const result = await configDomain.getRoutinesMarkdown({});
+      const result = await configService.getRoutinesMarkdown({});
 
       expect(result.source).toBe('yaml');
     });
@@ -191,7 +191,7 @@ describe('ConfigDomain', () => {
       vi.mocked(writeRoutinesMarkdown).mockResolvedValue(undefined);
       vi.mocked(readRoutinesMarkdown).mockResolvedValue(mockResponse);
 
-      const result = await configDomain.saveRoutinesMarkdown({
+      const result = await configService.saveRoutinesMarkdown({
         data: { content },
       });
 
@@ -200,13 +200,13 @@ describe('ConfigDomain', () => {
     });
 
     it('should throw ValidationError when content is missing', async () => {
-      await expect(configDomain.saveRoutinesMarkdown({
+      await expect(configService.saveRoutinesMarkdown({
         data: { content: '' },
       })).rejects.toThrow(ValidationError);
     });
 
     it('should throw ValidationError when content is not a string', async () => {
-      await expect(configDomain.saveRoutinesMarkdown({
+      await expect(configService.saveRoutinesMarkdown({
         data: { content: undefined as unknown as string },
       })).rejects.toThrow(ValidationError);
     });

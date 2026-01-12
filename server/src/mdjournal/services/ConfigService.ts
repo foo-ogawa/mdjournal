@@ -1,11 +1,11 @@
 /**
- * Config Domain Implementation
+ * Config Service Implementation
  * 
  * Implements ConfigApi interface from the contract package.
  * Contains HTTP-agnostic business logic for configuration operations.
  */
 
-import type { ConfigApi } from '@mdjournal/contract/domains/ConfigApi.js';
+import type { ConfigServiceApi } from '@mdjournal/contract/services/ConfigServiceApi.js';
 import type {
   Config,
   RoutinesMarkdownResponse,
@@ -19,7 +19,7 @@ import { readConfig, writeConfig, readRoutinesMarkdown, writeRoutinesMarkdown } 
 import type { Config as FileManagerConfig } from '../../types/index.js';
 import { ValidationError } from './errors.js';
 
-export class ConfigDomain implements ConfigApi {
+export class ConfigService implements ConfigServiceApi {
   /**
    * 設定取得
    */

@@ -1,8 +1,8 @@
 /**
- * CalendarDomain tests
+ * CalendarService tests
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { CalendarDomain } from './CalendarDomain.js';
+import { CalendarService } from './CalendarService.js';
 import { ValidationError } from './errors.js';
 
 // Mock fileManager
@@ -13,11 +13,11 @@ vi.mock('../../utils/fileManager.js', () => ({
 
 import { getMonthReportStats, getAvailableYearMonths } from '../../utils/fileManager.js';
 
-describe('CalendarDomain', () => {
-  let calendarDomain: CalendarDomain;
+describe('CalendarService', () => {
+  let calendarService: CalendarService;
 
   beforeEach(() => {
-    calendarDomain = new CalendarDomain();
+    calendarService = new CalendarService();
     vi.clearAllMocks();
   });
 
@@ -47,7 +47,7 @@ describe('CalendarDomain', () => {
 
       vi.mocked(getMonthReportStats).mockResolvedValue(mockStats);
 
-      const result = await calendarDomain.getCalendarData({ year: 2025, month: 1 });
+      const result = await calendarService.getCalendarData({ year: 2025, month: 1 });
 
       expect(result.year).toBe(2025);
       expect(result.month).toBe(1);
@@ -77,7 +77,7 @@ describe('CalendarDomain', () => {
       vi.mocked(getMonthReportStats).mockResolvedValue(new Map());
 
       // TypeScript type system might complain, but runtime should handle string inputs
-      const result = await calendarDomain.getCalendarData({ 
+      const result = await calendarService.getCalendarData({ 
         year: '2025' as unknown as number, 
         month: '6' as unknown as number,
       });
@@ -89,28 +89,28 @@ describe('CalendarDomain', () => {
 
     it('should throw ValidationError for invalid year', async () => {
       await expect(
-        calendarDomain.getCalendarData({ year: 1999, month: 1 })
+        calendarService.getCalendarData({ year: 1999, month: 1 })
       ).rejects.toThrow(ValidationError);
 
       await expect(
-        calendarDomain.getCalendarData({ year: 2101, month: 1 })
+        calendarService.getCalendarData({ year: 2101, month: 1 })
       ).rejects.toThrow(ValidationError);
     });
 
     it('should throw ValidationError for invalid month', async () => {
       await expect(
-        calendarDomain.getCalendarData({ year: 2025, month: 0 })
+        calendarService.getCalendarData({ year: 2025, month: 0 })
       ).rejects.toThrow(ValidationError);
 
       await expect(
-        calendarDomain.getCalendarData({ year: 2025, month: 13 })
+        calendarService.getCalendarData({ year: 2025, month: 13 })
       ).rejects.toThrow(ValidationError);
     });
 
     it('should return empty summary when no reports exist', async () => {
       vi.mocked(getMonthReportStats).mockResolvedValue(new Map());
 
-      const result = await calendarDomain.getCalendarData({ year: 2025, month: 2 });
+      const result = await calendarService.getCalendarData({ year: 2025, month: 2 });
 
       expect(result.days).toHaveLength(28); // February 2025 (non-leap year)
       expect(result.summary).toBeDefined();
@@ -130,7 +130,7 @@ describe('CalendarDomain', () => {
 
       vi.mocked(getAvailableYearMonths).mockResolvedValue(mockYearMonths);
 
-      const result = await calendarDomain.getAvailableYearMonths({});
+      const result = await calendarService.getAvailableYearMonths({});
 
       expect(result.yearMonths).toHaveLength(3);
       expect(result.yearMonths).toEqual(mockYearMonths);
@@ -139,7 +139,7 @@ describe('CalendarDomain', () => {
     it('should return empty array when no reports exist', async () => {
       vi.mocked(getAvailableYearMonths).mockResolvedValue([]);
 
-      const result = await calendarDomain.getAvailableYearMonths({});
+      const result = await calendarService.getAvailableYearMonths({});
 
       expect(result.yearMonths).toHaveLength(0);
     });

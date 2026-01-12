@@ -1,11 +1,11 @@
 /**
- * Git Domain Implementation
+ * Git Service Implementation
  * 
  * Implements GitApi interface from the contract package.
  * Contains HTTP-agnostic business logic for Git operations.
  */
 
-import type { GitApi } from '@mdjournal/contract/domains/GitApi.js';
+import type { GitServiceApi } from '@mdjournal/contract/services/GitServiceApi.js';
 import type {
   ExtendedGitStatus,
   Git_getStatusInput,
@@ -13,7 +13,7 @@ import type {
 
 import { getExtendedGitStatus } from '../../utils/git.js';
 
-export class GitDomain implements GitApi {
+export class GitService implements GitServiceApi {
   /**
    * Git状態取得
    */

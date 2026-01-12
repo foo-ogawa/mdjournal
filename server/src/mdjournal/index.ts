@@ -1,37 +1,37 @@
 /**
  * mdjournal module setup
  * 
- * Integrates auto-generated routes with domain implementations.
+ * Integrates auto-generated routes with service implementations.
  */
 
 import { Router } from 'express';
-import { initDomains, registerRoutes } from './routes.generated.js';
+import { initServices, registerRoutes } from './routes.generated.js';
 import {
-  ReportDomain,
-  CalendarDomain,
-  ConfigDomain,
-  GitDomain,
-} from './domains/index.js';
+  ReportService,
+  CalendarService,
+  ConfigService,
+  GitService,
+} from './services/index.js';
 
 /**
  * Create and configure the mdjournal router
  * 
  * This function:
- * 1. Instantiates all domain implementations
- * 2. Initializes the generated routes with domain instances
+ * 1. Instantiates all service implementations
+ * 2. Initializes the generated routes with service instances
  * 3. Returns a configured Express router
  */
 export function createMdjournalRouter(): Router {
-  // Instantiate domain implementations
-  const domains = {
-    report: new ReportDomain(),
-    calendar: new CalendarDomain(),
-    config: new ConfigDomain(),
-    git: new GitDomain(),
+  // Instantiate service implementations
+  const services = {
+    report: new ReportService(),
+    calendar: new CalendarService(),
+    config: new ConfigService(),
+    git: new GitService(),
   };
 
-  // Initialize generated routes with domain instances
-  initDomains(domains);
+  // Initialize generated routes with service instances
+  initServices(services);
 
   // Create router and register routes
   const router = Router();
@@ -41,5 +41,5 @@ export function createMdjournalRouter(): Router {
 }
 
 // Re-export for direct access if needed
-export * from './domains/index.js';
+export * from './services/index.js';
 

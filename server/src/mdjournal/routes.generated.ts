@@ -34,33 +34,33 @@ import type {
   RoutinesMarkdownResponse,
   YearMonthsResponse,
 } from '@mdjournal/contract/schemas/types.js';
-import type { CalendarApi } from '@mdjournal/contract/domains/CalendarApi.js';
-import type { ConfigApi } from '@mdjournal/contract/domains/ConfigApi.js';
-import type { GitApi } from '@mdjournal/contract/domains/GitApi.js';
-import type { ReportApi } from '@mdjournal/contract/domains/ReportApi.js';
+import type { CalendarServiceApi } from '@mdjournal/contract/services/CalendarServiceApi.js';
+import type { ConfigServiceApi } from '@mdjournal/contract/services/ConfigServiceApi.js';
+import type { GitServiceApi } from '@mdjournal/contract/services/GitServiceApi.js';
+import type { ReportServiceApi } from '@mdjournal/contract/services/ReportServiceApi.js';
 
 // ========================================
-// Domain Dependencies
+// Service Dependencies
 // ========================================
 
-let calendarDomain: CalendarApi;
-let configDomain: ConfigApi;
-let gitDomain: GitApi;
-let reportDomain: ReportApi;
+let calendarService: CalendarServiceApi;
+let configService: ConfigServiceApi;
+let gitService: GitServiceApi;
+let reportService: ReportServiceApi;
 
 /**
- * Initialize domain instances
+ * Initialize service instances
  */
-export function initDomains(domains: {
-  calendar: CalendarApi;
-  config: ConfigApi;
-  git: GitApi;
-  report: ReportApi;
+export function initServices(services: {
+  calendar: CalendarServiceApi;
+  config: ConfigServiceApi;
+  git: GitServiceApi;
+  report: ReportServiceApi;
 }): void {
-  calendarDomain = domains.calendar;
-  configDomain = domains.config;
-  gitDomain = domains.git;
-  reportDomain = domains.report;
+  calendarService = services.calendar;
+  configService = services.config;
+  gitService = services.git;
+  reportService = services.report;
 }
 
 // ========================================
@@ -91,16 +91,16 @@ function asyncHandler(
  */
 router.get('/reports/:date', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
     date: req.params.date,
   } as unknown as Report_getReportInput;
 
   try {
-    const result = await reportDomain.getReport(input);
+    const result = await reportService.getReport(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -125,17 +125,17 @@ router.get('/reports/:date', asyncHandler(async (req: Request, res: Response) =>
  */
 router.put('/reports/:date', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
     date: req.params.date,
     data: req.body as ReportSaveRequest,
   } as unknown as Report_saveReportInput;
 
   try {
-    const result = await reportDomain.saveReport(input);
+    const result = await reportService.saveReport(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -160,16 +160,16 @@ router.put('/reports/:date', asyncHandler(async (req: Request, res: Response) =>
  */
 router.delete('/reports/:date', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
     date: req.params.date,
   } as unknown as Report_deleteReportInput;
 
   try {
-    await reportDomain.deleteReport(input);
+    await reportService.deleteReport(input);
     res.status(204).send();
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -194,17 +194,17 @@ router.delete('/reports/:date', asyncHandler(async (req: Request, res: Response)
  */
 router.get('/calendar', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
     year: req.query.year,
     month: req.query.month,
   } as unknown as Calendar_getCalendarDataInput;
 
   try {
-    const result = await calendarDomain.getCalendarData(input);
+    const result = await calendarService.getCalendarData(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -229,15 +229,15 @@ router.get('/calendar', asyncHandler(async (req: Request, res: Response) => {
  */
 router.get('/calendar/months', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
   } as unknown as Calendar_getAvailableYearMonthsInput;
 
   try {
-    const result = await calendarDomain.getAvailableYearMonths(input);
+    const result = await calendarService.getAvailableYearMonths(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -262,15 +262,15 @@ router.get('/calendar/months', asyncHandler(async (req: Request, res: Response) 
  */
 router.get('/config', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
   } as unknown as Config_getConfigInput;
 
   try {
-    const result = await configDomain.getConfig(input);
+    const result = await configService.getConfig(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -295,16 +295,16 @@ router.get('/config', asyncHandler(async (req: Request, res: Response) => {
  */
 router.put('/config', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
     data: req.body as Config,
   } as unknown as Config_updateConfigInput;
 
   try {
-    const result = await configDomain.updateConfig(input);
+    const result = await configService.updateConfig(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -329,15 +329,15 @@ router.put('/config', asyncHandler(async (req: Request, res: Response) => {
  */
 router.get('/config/routines/markdown', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
   } as unknown as Config_getRoutinesMarkdownInput;
 
   try {
-    const result = await configDomain.getRoutinesMarkdown(input);
+    const result = await configService.getRoutinesMarkdown(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -362,16 +362,16 @@ router.get('/config/routines/markdown', asyncHandler(async (req: Request, res: R
  */
 router.put('/config/routines/markdown', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
     data: req.body as RoutinesMarkdownRequest,
   } as unknown as Config_saveRoutinesMarkdownInput;
 
   try {
-    const result = await configDomain.saveRoutinesMarkdown(input);
+    const result = await configService.saveRoutinesMarkdown(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -396,15 +396,15 @@ router.put('/config/routines/markdown', asyncHandler(async (req: Request, res: R
  */
 router.get('/git/status', asyncHandler(async (req: Request, res: Response) => {
   // Build input from request
-  // Note: Query params are strings from HTTP - domain handles type coercion
+  // Note: Query params are strings from HTTP - service handles type coercion
   const input = {
   } as unknown as Git_getStatusInput;
 
   try {
-    const result = await gitDomain.getStatus(input);
+    const result = await gitService.getStatus(input);
     res.json(result);
   } catch (error) {
-    // Handle domain-specific errors by error name
+    // Handle service-specific errors by error name
     if (error instanceof Error) {
       const errorName = error.name;
       const errorCode = (error as { code?: string }).code;
@@ -429,17 +429,17 @@ export default router;
  * Register routes with Express app
  */
 export function registerRoutes(app: Router, basePath: string = '/api'): void {
-  if (!calendarDomain) {
-    throw new Error('CalendarDomain is not initialized. Call initDomains() first.');
+  if (!calendarService) {
+    throw new Error('CalendarService is not initialized. Call initServices() first.');
   }
-  if (!configDomain) {
-    throw new Error('ConfigDomain is not initialized. Call initDomains() first.');
+  if (!configService) {
+    throw new Error('ConfigService is not initialized. Call initServices() first.');
   }
-  if (!gitDomain) {
-    throw new Error('GitDomain is not initialized. Call initDomains() first.');
+  if (!gitService) {
+    throw new Error('GitService is not initialized. Call initServices() first.');
   }
-  if (!reportDomain) {
-    throw new Error('ReportDomain is not initialized. Call initDomains() first.');
+  if (!reportService) {
+    throw new Error('ReportService is not initialized. Call initServices() first.');
   }
   app.use(basePath, router);
 }

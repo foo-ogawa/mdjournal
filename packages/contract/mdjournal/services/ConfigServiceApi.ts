@@ -1,5 +1,5 @@
 /**
- * Config Domain API Interface
+ * Config Service API Interface
  * Auto-generated from OpenAPI specification
  * DO NOT EDIT MANUALLY
  */
@@ -13,7 +13,7 @@ import type {
   RoutinesMarkdownResponse,
 } from '../schemas/types.js';
 
-export interface ConfigApi {
+export interface ConfigServiceApi {
   /**
    * GET /config
    * @internal Not included in public contract
