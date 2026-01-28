@@ -404,12 +404,7 @@ export const Project = {
       },
       "category": {
         "type": "string",
-        "description": "カテゴリ",
-        "enum": [
-          "internal",
-          "client",
-          "personal"
-        ]
+        "description": "カテゴリ名（自由文字列）"
       },
       "client": {
         "type": "string",

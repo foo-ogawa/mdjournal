@@ -651,12 +651,8 @@ components:
           example: '#52c41a'
         category:
           type: string
-          enum:
-            - internal
-            - client
-            - personal
-          description: カテゴリ
-          example: internal
+          description: カテゴリ名（自由文字列）
+          example: クライアント
         client:
           type: string
           description: クライアント名

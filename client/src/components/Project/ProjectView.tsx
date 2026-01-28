@@ -43,11 +43,6 @@ export const ProjectView = ({ selectedProjects = [], onToggleProject }: ProjectV
     );
   }, [projectStats]);
 
-  const categoryLabels: Record<string, string> = {
-    internal: '社内業務',
-    client: 'クライアント',
-    personal: '個人',
-  };
 
   const handleProjectClick = (projectCode: string) => {
     if (onToggleProject) {
@@ -83,7 +78,7 @@ export const ProjectView = ({ selectedProjects = [], onToggleProject }: ProjectV
               borderRadius: 4,
             }}
           >
-            <Text strong style={{ fontSize: 11 }}>{categoryLabels[category] || category}</Text>
+            <Text strong style={{ fontSize: 11 }}>{category}</Text>
             <Text type="secondary" style={{ fontSize: 10, marginLeft: 6 }}>
               ({categoryProjects.length})
             </Text>

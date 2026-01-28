@@ -197,8 +197,8 @@ export interface Project {
   name: string;
   /** プロジェクトカラー（HEX形式） */
   color: string;
-  /** カテゴリ */
-  category: ('internal' | 'client' | 'personal');
+  /** カテゴリ名（自由文字列） */
+  category: string;
   /** クライアント名 */
   client?: string;
   /** アクティブフラグ */
