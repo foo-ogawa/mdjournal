@@ -62,6 +62,18 @@ interface RootConfig {
     channel?: string;
     username?: string;
     iconEmoji?: string;
+    sections?: {
+      plan?: boolean;
+      result?: boolean;
+      todo?: boolean;
+      note?: boolean;
+    };
+    todoIcons?: {
+      pending?: string;
+      inProgress?: string;
+      onHold?: string;
+      completed?: string;
+    };
   };
 }
 

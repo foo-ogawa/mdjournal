@@ -23,3 +23,27 @@ timeline:
 server:
   port: 3001
   cors: http://localhost:5173
+
+# Slack連携設定（オプション）
+# slack:
+#   enabled: false
+#   # Webhook URL（環境変数 SLACK_WEBHOOK_URL でも設定可能）
+#   webhookUrl: ${SLACK_WEBHOOK_URL}
+#   # 投稿先チャンネル（Webhook URLで設定されている場合は不要）
+#   channel: "#daily_report"
+#   # 投稿者名
+#   username: "日報"
+#   # アイコン
+#   iconEmoji: ":memo:"
+#   # 投稿するセクション（true: 投稿する / false: 省略する）
+#   sections:
+#     plan: true
+#     result: true
+#     todo: true
+#     note: true
+#   # TODOステータスアイコン（Slack shortcode形式）
+#   todoIcons:
+#     pending: ":black_square_button:"        # 未着手   - [ ]
+#     inProgress: ":arrow_forward:"           # 進行中   - [*]
+#     onHold: ":double_vertical_bar:"         # 保留中   - [-]
+#     completed: ":white_check_mark:"         # 完了     - [x]

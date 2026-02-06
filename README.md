@@ -216,21 +216,47 @@ git remote add origin <your-repo-url>
 
 ### Slack連携
 
-日報をSlackチャンネルに投稿できます。
+日報をSlackチャンネルに投稿できます。Slack Block Kit を使用したリッチなフォーマットで、時刻やプロジェクトコードが `code` 形式で見やすく表示されます。
 
 ```yaml
 # mdjournal.config.yaml に追加
 slack:
   enabled: true
-  webhookUrl: ${SLACK_WEBHOOK_URL}  # 環境変数から取得
+  webhookUrl: "https://hooks.slack.com/services/..."  # 直接指定
+  # webhookUrl: ${SLACK_WEBHOOK_URL}                  # または環境変数から取得
   channel: "#daily_report"
+  username: "日報"
+  iconEmoji: ":memo:"
+
+  # 投稿するセクション（true: 投稿する / false: 省略する）
+  sections:
+    plan: false           # PLAN を省略
+    result: true          # RESULT のみ投稿
+    todo: true
+    note: true
+
+  # TODOステータスアイコン（Slack shortcode形式でカスタマイズ可能）
+  todoIcons:
+    pending: ":black_square_button:"        # 未着手   - [ ]
+    inProgress: ":arrow_forward:"           # 進行中   - [*]
+    onHold: ":double_vertical_bar:"         # 保留中   - [-]
+    completed: ":white_check_mark:"         # 完了     - [x]
 ```
 
-環境変数の設定:
+環境変数でWebhook URLを設定する場合:
 
 ```bash
 export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."
 ```
+
+#### Slack投稿の表示例
+
+投稿は Slack Block Kit で構造化され、以下のようにフォーマットされます:
+
+- **タイムライン項目**: `• \`09:00\` \`P01\` タスク確認・朝会`
+- **TODO項目**: `:black_square_button: \`P01\` 重要なタスク @2025-01-10`
+- セクション間は区切り線で分離
+- PLAN/RESULTの片方のみ有効な場合、セクションヘッダーは自動で省略
 
 ### 保存ダイアログ
 
@@ -239,7 +265,7 @@ export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."
 1. **保存のみ** - ローカルファイルに保存
 2. **Commitまで** - 保存 + Git commit
 3. **Pushまで** - 保存 + commit + push
-4. **Slack投稿** - 上記 + Slackに投稿（Slack連携が有効な場合）
+4. **Slack投稿** - 上記 + Slackに投稿（Slack連携が有効な場合のみ表示）
 
 ---
 
@@ -322,6 +348,29 @@ routines:
       tasks:
         - project: P01
           task: 四半期レビュー
+```
+
+### Slack連携設定
+
+```yaml
+slack:
+  enabled: true                              # Slack連携を有効化
+  webhookUrl: "https://hooks.slack.com/..."   # Webhook URL（環境変数 SLACK_WEBHOOK_URL でも可）
+  channel: "#daily_report"                    # 投稿先チャンネル
+  username: "日報"                             # 投稿者名
+  iconEmoji: ":memo:"                         # 投稿者アイコン
+
+  sections:                # 投稿するセクション
+    plan: true             #   計画
+    result: true           #   実績
+    todo: true             #   TODO
+    note: true             #   メモ
+
+  todoIcons:               # TODOアイコン（Slack shortcode形式）
+    pending: ":black_square_button:"       # 未着手   - [ ]
+    inProgress: ":arrow_forward:"          # 進行中   - [*]
+    onHold: ":double_vertical_bar:"        # 保留中   - [-]
+    completed: ":white_check_mark:"        # 完了     - [x]
 ```
 
 ---
