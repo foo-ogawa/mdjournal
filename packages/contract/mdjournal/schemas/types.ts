@@ -183,6 +183,8 @@ export interface YearMonth {
 }
 
 export interface Config {
+  /** デフォルトの著者名（日報タイトルに使用） */
+  author?: string;
   /** プロジェクトマスタ */
   projects?: Project[];
   routines?: Routines;

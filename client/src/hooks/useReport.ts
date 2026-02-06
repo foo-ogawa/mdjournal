@@ -50,7 +50,7 @@ interface UseReportReturn {
   copyPlanToResult: () => void;
 }
 
-export function useReport(initialDate?: string): UseReportReturn {
+export function useReport(initialDate?: string, defaultAuthor?: string): UseReportReturn {
   const [currentDate, setCurrentDate] = useState(initialDate || dayjs().format('YYYY-MM-DD'));
   const [report, setReport] = useState<DailyReport | null>(null);
   const [stats, setStats] = useState<ReportStats | null>(null);
@@ -84,6 +84,9 @@ export function useReport(initialDate?: string): UseReportReturn {
       } else {
         // 新規日報 - 前日の未完了TODOを持ち越し
         const newReport = createEmptyReport(date);
+        if (defaultAuthor) {
+          newReport.author = defaultAuthor;
+        }
         
         // 前日の日報から未完了TODOを取得
         const previousDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
@@ -114,7 +117,7 @@ export function useReport(initialDate?: string): UseReportReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [defaultAuthor]);
 
   // 日報保存
   const saveReport = useCallback(async (options?: { git?: { commit?: boolean; push?: boolean }; slack?: { post?: boolean } }) => {
@@ -532,7 +535,7 @@ function parseReportFromMarkdown(date: string, content: string): DailyReport {
 function generateMarkdownFromReport(report: DailyReport): string {
   const lines: string[] = [];
   
-  lines.push(`# [日報] ${report.author || '名前'} ${report.date}`);
+  lines.push(`# [日報] ${report.author} ${report.date}`);
   lines.push('');
   
   // PLAN（共通関数を使用）

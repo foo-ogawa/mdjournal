@@ -4,6 +4,9 @@
 #   npx mdjournal ./mdjournal.config.yaml
 #   npx mdjournal -c ./mdjournal.config.yaml
 
+# 著者名（日報タイトルのデフォルト値）
+# author: "山田太郎"
+
 # 各設定ファイルへのパス（このファイルからの相対パス）
 projects: ./config/projects.yaml
 routines: ./config/routines.yaml

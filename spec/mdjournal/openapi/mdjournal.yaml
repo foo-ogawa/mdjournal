@@ -668,6 +668,10 @@ components:
     Config:
       type: object
       properties:
+        author:
+          type: string
+          description: デフォルトの著者名（日報タイトルに使用）
+          example: "山田太郎"
         projects:
           type: array
           description: プロジェクトマスタ

@@ -366,6 +366,10 @@ export const Config = {
     "$id": "Config",
     "type": "object",
     "properties": {
+      "author": {
+        "type": "string",
+        "description": "デフォルトの著者名（日報タイトルに使用）"
+      },
       "projects": {
         "type": "array",
         "description": "プロジェクトマスタ",

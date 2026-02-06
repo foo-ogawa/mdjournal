@@ -54,7 +54,7 @@ describe('generateReportMarkdown', () => {
       notes: '',
     };
 
-    const markdown = generateReportMarkdown(report, '2025-01-06');
+    const markdown = generateReportMarkdown(report, '2025-01-06', '山田太郎');
 
     expect(markdown).toContain('- [ ] [P99] 未着手');
     expect(markdown).toContain('- [*] [P99] 進行中');
@@ -76,14 +76,14 @@ describe('generateReportMarkdown', () => {
       notes: '',
     };
 
-    const markdown = generateReportMarkdown(report, '2025-01-06');
+    const markdown = generateReportMarkdown(report, '2025-01-06', '山田太郎');
 
     expect(markdown).toContain('!!! [P99] 高優先');
     expect(markdown).toContain('!! [P99] 中優先');
     expect(markdown).toContain('! [P99] 低優先');
   });
 
-  it('should use default author name', () => {
+  it('should use config author name', () => {
     const report: DailyReport = {
       date: '2025-01-06',
       plan: [],
@@ -92,9 +92,9 @@ describe('generateReportMarkdown', () => {
       notes: '',
     };
 
-    const markdown = generateReportMarkdown(report, '2025-01-06');
+    const markdown = generateReportMarkdown(report, '2025-01-06', '設定太郎');
 
-    expect(markdown).toContain('# [日報] 名前 2025-01-06');
+    expect(markdown).toContain('# [日報] 設定太郎 2025-01-06');
   });
 });
 

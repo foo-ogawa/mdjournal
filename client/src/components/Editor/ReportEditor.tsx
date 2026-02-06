@@ -78,11 +78,12 @@ export const ReportEditor = ({ selectedDate }: ReportEditorProps) => {
   const weeklyRoutine = config.routines?.weekly;
 
   // Markdown テキスト生成（テキストモード用）
+  const authorName = report.report?.author || config.config?.author || '';
   const generateMarkdown = () => {
     return generateReportMarkdown(
-      { date: selectedDate.format('YYYY-MM-DD'), plan, result, todos, notes, author: report.report?.author || '名前' },
+      { date: selectedDate.format('YYYY-MM-DD'), plan, result, todos, notes, author: authorName },
       selectedDate.format('YYYY-MM-DD'),
-      report.report?.author || '名前'
+      authorName
     );
   };
 

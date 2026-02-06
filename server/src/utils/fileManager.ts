@@ -266,11 +266,14 @@ export async function readConfig(): Promise<Config> {
     routines = await readRoutinesYaml();
   }
 
+  // 著者名をルート設定から取得
+  const author = rootConfig.author as string | undefined;
+
   // Slack設定をルート設定から取得
   const slackConfig = rootConfig.slack as { enabled?: boolean } | undefined;
   const slack = slackConfig ? { enabled: !!slackConfig.enabled } : undefined;
 
-  return { projects, routines, timeline: getTimelineConfig(), slack };
+  return { author, projects, routines, timeline: getTimelineConfig(), slack };
 }
 
 /**

@@ -27,8 +27,8 @@ export const Dashboard = () => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   
   // カスタムフック
-  const report = useReport(selectedDate.format('YYYY-MM-DD'));
   const config = useConfig();
+  const report = useReport(selectedDate.format('YYYY-MM-DD'), config.config?.author);
   const calendar = useCalendar(selectedDate.year(), selectedDate.month() + 1);
   const unsavedReports = useUnsavedReports();
   

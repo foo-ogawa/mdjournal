@@ -155,6 +155,7 @@ export interface SlackConfig {
 }
 
 export interface Config {
+  author?: string;
   projects: Project[];
   routines: Routines;
   timeline?: TimelineConfig;

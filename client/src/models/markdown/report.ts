@@ -10,7 +10,7 @@ import type { ScheduleItem, TodoItem, DailyReport } from '../../types';
 export function generateReportMarkdown(
   report: DailyReport,
   date: string,
-  author: string = '名前'
+  author: string
 ): string {
   const formatItems = (items: ScheduleItem[]) =>
     items.map((item) => `* ${item.time} [${item.project}] ${item.task}`).join('\n');

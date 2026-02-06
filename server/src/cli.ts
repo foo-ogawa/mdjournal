@@ -35,6 +35,9 @@ const __dirname = path.dirname(__filename);
 
 // ルート設定ファイルの型
 interface RootConfig {
+  // 著者名（日報タイトルのデフォルト値）
+  author?: string;
+  
   // 各設定ファイルへのパス
   projects?: string;      // projects.yaml へのパス
   routines?: string;      // routines.yaml へのパス
@@ -174,6 +177,7 @@ async function loadRootConfig(configPath: string): Promise<RootConfig> {
     const resolvePath = (p?: string) => p ? path.resolve(configDir, p) : undefined;
     
     return {
+      author: config.author,
       projects: resolvePath(config.projects),
       routines: resolvePath(config.routines),
       reports: resolvePath(config.reports),
