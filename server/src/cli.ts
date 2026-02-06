@@ -54,6 +54,15 @@ interface RootConfig {
     port?: number;
     cors?: string;
   };
+  
+  // Slack連携設定
+  slack?: {
+    enabled?: boolean;
+    webhookUrl?: string;
+    channel?: string;
+    username?: string;
+    iconEmoji?: string;
+  };
 }
 
 function printHelp() {
@@ -158,6 +167,7 @@ async function loadRootConfig(configPath: string): Promise<RootConfig> {
       reports: resolvePath(config.reports),
       timeline: config.timeline,
       server: config.server,
+      slack: config.slack,
     };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
