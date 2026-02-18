@@ -294,16 +294,16 @@ function formatSectionContent(content: string, todoIcons: TodoIcons): string {
     // H3 → 太字
     .replace(/^### (.+)$/gm, '*$1*')
     // チェックボックス → カスタムアイコン + プロジェクトコードを code 形式に
-    .replace(/^- \[x\]\s*(?:\[([^\]]+)\]\s*)?/gim, (_, code) =>
+    .replace(/^- \[x\][ \t]*(?:\[([^\]]+)\][ \t]*)?/gim, (_, code) =>
       `${todoIcons.completed}${code ? ` \`${code}\`` : ''} `)
-    .replace(/^- \[\*\]\s*(?:\[([^\]]+)\]\s*)?/gm, (_, code) =>
+    .replace(/^- \[\*\][ \t]*(?:\[([^\]]+)\][ \t]*)?/gm, (_, code) =>
       `${todoIcons.inProgress}${code ? ` \`${code}\`` : ''} `)
-    .replace(/^- \[-\]\s*(?:\[([^\]]+)\]\s*)?/gm, (_, code) =>
+    .replace(/^- \[-\][ \t]*(?:\[([^\]]+)\][ \t]*)?/gm, (_, code) =>
       `${todoIcons.onHold}${code ? ` \`${code}\`` : ''} `)
-    .replace(/^- \[ \]\s*(?:\[([^\]]+)\]\s*)?/gm, (_, code) =>
+    .replace(/^- \[ \][ \t]*(?:\[([^\]]+)\][ \t]*)?/gm, (_, code) =>
       `${todoIcons.pending}${code ? ` \`${code}\`` : ''} `)
     // スケジュールリスト → 時刻とプロジェクトコードを code 形式に
-    .replace(/^\* (\d{2}:\d{2})\s*(?:\[([^\]]+)\]\s*)?(.*)$/gm, (_, time, code, task) =>
+    .replace(/^\* (\d{2}:\d{2})[ \t]*(?:\[([^\]]+)\][ \t]*)?(.*)$/gm, (_, time, code, task) =>
       `• \`${time}\`${code ? ` \`${code}\`` : ''}${task ? ` ${task}` : ''}`
     );
 }
