@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # npm trusted publishing (OIDC): npm publish authenticates with the job's GitHub OIDC token.
+      # Trusted publisher on npmjs.com: foo-ogawa/mdjournal + publish.yml (no environment).
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -30,10 +33,12 @@ jobs:
       - name: Run tests
         run: npm test
 
+      # Trusted publishing needs npm CLI 11.5.1 or later; setup-node installs npm 10.
+      - name: Update npm for trusted publishing
+        run: npm install -g npm@^11.5.1
+
       - name: Publish to npm
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 
 
